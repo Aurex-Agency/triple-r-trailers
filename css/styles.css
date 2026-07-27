@@ -790,13 +790,21 @@ body.no-scroll { overflow: hidden; }
 .tab.is-active::after { transform: scaleX(1); }
 
 .panel { display: none; }
-.panel.is-active {
-  display: block;
-  animation: panel-in 0.55s var(--ease-out);
+.panel.is-active { display: block; }
+.panel.is-active .panel__info {
+  animation: panel-copy-in 0.6s var(--ease-out) both;
 }
-@keyframes panel-in {
-  from { opacity: 0; clip-path: inset(0 100% 0 0); }
-  to { opacity: 1; clip-path: inset(0 0 0 0); }
+.panel.is-active .panel__photo,
+.panel.is-active .panel__art {
+  animation: panel-photo-in 0.85s ease 0.05s both;
+}
+@keyframes panel-copy-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes panel-photo-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .panel__grid {

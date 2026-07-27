@@ -3,6 +3,7 @@
   'use strict';
 
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var refreshScrollFx = null;
 
   /* ---------- Header scroll state ---------- */
   var header = document.getElementById('header');
@@ -106,7 +107,7 @@
       plxEls.forEach(function (el) {
         var host = el.parentElement;
         var r = host.getBoundingClientRect();
-        if (r.bottom < -140 || r.top > vh + 140) return;
+        if (r.bottom < -vh || r.top > vh * 2) return;
         var mid = r.top + r.height / 2 - vh / 2;
         var f = parseFloat(el.getAttribute('data-plx')) || 0.05;
         var s = el.getAttribute('data-plx-scale') || '1.12';
@@ -114,6 +115,7 @@
       });
       fxTicking = false;
     };
+    refreshScrollFx = applyScrollFx;
     window.addEventListener('scroll', function () {
       if (!fxTicking) { fxTicking = true; requestAnimationFrame(applyScrollFx); }
     }, { passive: true });
@@ -137,6 +139,8 @@
           panel.classList.toggle('is-active', active);
           if (active) {
             panel.removeAttribute('hidden');
+            /* position parallax photos before first paint so nothing jumps */
+            if (refreshScrollFx) refreshScrollFx();
             /* replay the line-art draw */
             var art = panel.querySelector('.draw');
             if (art && !reducedMotion) {
@@ -166,6 +170,16 @@
       if (next) { e.preventDefault(); activateTab(next, true); }
     });
   }
+
+  /* ---------- Soft fade-in for lazy-loaded photos ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('.blend img'), function (img) {
+    if (img.complete) return;
+    img.style.opacity = '0';
+    img.addEventListener('load', function () {
+      img.style.transition = 'opacity 0.6s ease';
+      img.style.opacity = '1';
+    }, { once: true });
+  });
 
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById('year');
