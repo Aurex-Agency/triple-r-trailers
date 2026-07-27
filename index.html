@@ -114,6 +114,11 @@
 
     <!-- ============ HERO ============ -->
     <section class="hero" id="top">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__kb" data-plx="0.06" data-plx-scale="1">
+          <img src="assets/img/yard-lineup.jpg" alt="" width="1100" height="1466" fetchpriority="high">
+        </div>
+      </div>
       <div class="hero__ghost" aria-hidden="true">RRR</div>
 
       <div class="wrap hero__grid">
@@ -131,42 +136,10 @@
           </div>
         </div>
 
-        <div class="hero__media">
-          <figure class="hero__photo rev" style="--i:2">
-            <span class="blend blend--hero">
-              <img src="assets/img/yard-lineup.jpg" alt="Triple R utility trailers stacked for delivery in the Booneville factory yard" width="1100" height="1466" fetchpriority="high">
-            </span>
-            <figcaption class="hero__photocap">Fresh stock in the yard, Booneville, MS</figcaption>
-          </figure>
-          <img class="hero__badge stamp" src="assets/img/logo-badge-sm.png" alt="" width="180" height="163" aria-hidden="true">
+        <div class="hero__media" aria-hidden="true">
+          <img class="hero__badge stamp" src="assets/img/logo-badge.png" alt="" width="340" height="309">
+          <p class="hero__medianote">Fresh stock in the yard, Booneville, MS</p>
         </div>
-      </div>
-
-      <!-- Line-art gooseneck rig rolling across the hero floor -->
-      <div class="hero__rig" aria-hidden="true">
-        <svg class="rig draw" viewBox="0 0 900 170" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" preserveAspectRatio="xMidYMax meet">
-          <!-- deck -->
-          <path pathLength="1" d="M120 108 H 760"/>
-          <path pathLength="1" d="M120 120 H 760"/>
-          <!-- dovetail -->
-          <path pathLength="1" d="M760 108 L 830 122 V 128 L 760 120"/>
-          <!-- gooseneck riser and arm -->
-          <path pathLength="1" d="M132 108 V 56 H 40 V 84"/>
-          <path pathLength="1" d="M152 108 V 66 H 52"/>
-          <!-- coupler -->
-          <path pathLength="1" d="M32 84 H 48 M40 84 V 92"/>
-          <!-- stake pockets -->
-          <path pathLength="1" d="M220 120 v 8 M300 120 v 8 M380 120 v 8 M460 120 v 8 M540 120 v 8 M620 120 v 8 M700 120 v 8"/>
-          <!-- fender -->
-          <path pathLength="1" d="M560 120 q 8 -16 32 -16 h 96 q 24 0 32 16"/>
-          <!-- wheels -->
-          <circle pathLength="1" cx="612" cy="136" r="22"/>
-          <circle pathLength="1" cx="612" cy="136" r="7"/>
-          <circle pathLength="1" cx="668" cy="136" r="22"/>
-          <circle pathLength="1" cx="668" cy="136" r="7"/>
-          <!-- jack stand -->
-          <path pathLength="1" d="M176 108 v 34 m -8 0 h 16"/>
-        </svg>
       </div>
 
       <!-- Stat strip -->
@@ -373,7 +346,7 @@
         <div class="custom rev">
           <figure class="custom__photo">
             <span class="blend blend--custom">
-              <img src="assets/img/concession-red.jpg" alt="Red Triple R custom concession trailer with a serving window and blacked out trim" width="1100" height="1466" loading="lazy" decoding="async">
+              <img src="assets/img/concession-red.jpg" data-plx="0.045" alt="Red Triple R custom concession trailer with a serving window and blacked out trim" width="1100" height="1466" loading="lazy" decoding="async">
             </span>
           </figure>
           <div class="custom__body">
@@ -461,8 +434,8 @@
                 </div>
               </div>
               <figure class="panel__photo">
-                <span class="blend blend--featured">
-                  <img src="assets/img/enclosed-blackout.jpg" alt="Charcoal Triple R enclosed cargo trailer with the Black Out trim package" width="1100" height="1466" loading="lazy" decoding="async" style="object-position: 50% 68%">
+                <span class="blend blend--featured blend--bleed">
+                  <img src="assets/img/enclosed-blackout.jpg" data-plx="0.05" alt="Charcoal Triple R enclosed cargo trailer with the Black Out trim package" width="1100" height="1466" loading="lazy" decoding="async" style="object-position: 50% 68%">
                 </span>
                 <figcaption>Black Out package, fresh off the line</figcaption>
               </figure>
@@ -488,8 +461,8 @@
                 </div>
               </div>
               <figure class="panel__photo">
-                <span class="blend blend--featured">
-                  <img src="assets/img/dump-gray.jpg" alt="Gray Triple R dump trailer with the bed raised" width="1100" height="1466" loading="lazy" decoding="async" style="object-position: 50% 62%">
+                <span class="blend blend--featured blend--bleed">
+                  <img src="assets/img/dump-gray.jpg" data-plx="0.05" alt="Gray Triple R dump trailer with the bed raised" width="1100" height="1466" loading="lazy" decoding="async" style="object-position: 50% 62%">
                 </span>
                 <figcaption>Tandem axles, bed up</figcaption>
               </figure>
@@ -550,8 +523,8 @@
                 </div>
               </div>
               <figure class="panel__photo">
-                <span class="blend blend--featured">
-                  <img src="assets/img/utility-gate.jpg" alt="Black Triple R utility trailer with mesh gate and side rack options" width="1100" height="1466" loading="lazy" decoding="async" style="object-position: 50% 58%">
+                <span class="blend blend--featured blend--bleed">
+                  <img src="assets/img/utility-gate.jpg" data-plx="0.05" alt="Black Triple R utility trailer with mesh gate and side rack options" width="1100" height="1466" loading="lazy" decoding="async" style="object-position: 50% 58%">
                 </span>
                 <figcaption>Mesh gate and rack options</figcaption>
               </figure>

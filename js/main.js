@@ -92,21 +92,33 @@
     });
   }
 
-  /* ---------- Hero ghost parallax ---------- */
+  /* ---------- Scroll effects: ghost type + photo parallax ---------- */
   var ghost = document.querySelector('.hero__ghost');
-  if (ghost && !reducedMotion) {
-    var ticking = false;
-    window.addEventListener('scroll', function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () {
-        var y = window.scrollY;
-        if (y < window.innerHeight * 1.4) {
-          ghost.style.transform = 'translateY(' + y * 0.18 + 'px)';
-        }
-        ticking = false;
+  var plxEls = Array.prototype.slice.call(document.querySelectorAll('[data-plx]'));
+  if (!reducedMotion && (ghost || plxEls.length)) {
+    var fxTicking = false;
+    var applyScrollFx = function () {
+      var y = window.scrollY;
+      var vh = window.innerHeight;
+      if (ghost && y < vh * 1.4) {
+        ghost.style.transform = 'translateY(' + y * 0.18 + 'px)';
+      }
+      plxEls.forEach(function (el) {
+        var host = el.parentElement;
+        var r = host.getBoundingClientRect();
+        if (r.bottom < -140 || r.top > vh + 140) return;
+        var mid = r.top + r.height / 2 - vh / 2;
+        var f = parseFloat(el.getAttribute('data-plx')) || 0.05;
+        var s = el.getAttribute('data-plx-scale') || '1.12';
+        el.style.transform = 'translateY(' + (-mid * f).toFixed(1) + 'px)' + (s === '1' ? '' : ' scale(' + s + ')');
       });
+      fxTicking = false;
+    };
+    window.addEventListener('scroll', function () {
+      if (!fxTicking) { fxTicking = true; requestAnimationFrame(applyScrollFx); }
     }, { passive: true });
+    window.addEventListener('resize', function () { requestAnimationFrame(applyScrollFx); }, { passive: true });
+    applyScrollFx();
   }
 
   /* ---------- Featured tabs ---------- */
