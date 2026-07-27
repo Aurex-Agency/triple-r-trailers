@@ -328,10 +328,8 @@ address { font-style: normal; }
 }
 .topbar__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 9px; }
 .topbar__flag {
-  display: inline-block; width: 14px; height: 9px; margin-right: 10px;
-  background:
-    linear-gradient(to bottom, #b31c26 0 33%, var(--bone) 33% 66%, #274b77 66%);
-  vertical-align: -1px;
+  display: inline-block; margin-right: 10px;
+  vertical-align: -2px;
 }
 .topbar__note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar__links { display: flex; align-items: center; gap: 14px; white-space: nowrap; }
