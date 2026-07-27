@@ -255,8 +255,8 @@ address { font-style: normal; }
 .btn:hover::after, .btn:focus-visible::after { transform: translateX(0) skewX(0) scaleX(1); }
 
 .btn--red::before { background: var(--red); }
-.btn--red::after { background: var(--ink); }
-.btn--red:hover, .btn--red:focus-visible { color: var(--bone); }
+.btn--red::after { background: var(--bone); }
+.btn--red:hover, .btn--red:focus-visible { color: var(--ink); }
 
 .btn--ghost { color: var(--bone); }
 .btn--ghost::before { background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong); }
