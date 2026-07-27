@@ -14,7 +14,7 @@ Hand-built static site. No frameworks, no build step. Deployable to any static h
 - `css/styles.css` holds the full design system (tokens, type, components, sections)
 - `js/main.js` drives the animations (scroll reveals, self-drawing line art, counters, tabs, mobile drawer)
 - `assets/fonts/` self-hosted woff2 fonts (Ultra, Barlow, Barlow Condensed)
-- `assets/img/` brand logos and favicons
+- `assets/img/` brand logos, favicons, and real trailer photography from the yard
 
 ## Design notes
 
