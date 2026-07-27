@@ -519,8 +519,6 @@ body.no-scroll { overflow: hidden; }
 .marquee {
   position: relative; z-index: 5;
   background: var(--red);
-  transform: rotate(-1.1deg) scale(1.02);
-  margin-block: clamp(-6px, -0.5vw, -2px);
   border-block: 3px solid var(--ink);
   overflow: hidden;
 }
