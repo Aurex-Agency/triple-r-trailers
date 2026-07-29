@@ -1442,3 +1442,91 @@ a.tile { display: block; }
 .footer__statesrow span { color: var(--steel-dim); }
 .footer__statesrow a { color: var(--bone-dim); transition: color 0.25s ease; }
 .footer__statesrow a:hover { color: var(--red-bright); }
+
+/* ==========================================================================
+   Dealer map
+   ========================================================================== */
+.dmap { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.9fr); gap: 0; border: 1px solid var(--line); }
+#dealermap { height: clamp(420px, 55vh, 620px); background: var(--panel); z-index: 1; }
+#dealermap .leaflet-tile-pane { filter: grayscale(1) invert(1) brightness(0.72) contrast(1.15) sepia(0.14) hue-rotate(175deg); }
+#dealermap .leaflet-control-attribution {
+  background: rgba(14, 16, 18, 0.8); color: var(--steel);
+  font-family: var(--body); font-size: 10px;
+}
+#dealermap .leaflet-control-attribution a { color: var(--bone-dim); }
+#dealermap .leaflet-control-zoom a {
+  background: var(--ink); color: var(--bone); border-color: var(--line-strong);
+}
+#dealermap .leaflet-control-zoom a:hover { background: var(--red); }
+#dealermap .leaflet-popup-content-wrapper {
+  background: var(--ink); color: var(--bone);
+  border: 1px solid var(--line-strong); border-radius: 0;
+  font-family: var(--body); font-size: 14px; line-height: 1.6;
+}
+#dealermap .leaflet-popup-content-wrapper strong {
+  font-family: var(--cond); font-weight: 700; font-size: 15px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+#dealermap .leaflet-popup-content a { color: var(--red-bright); font-weight: 600; }
+#dealermap .leaflet-popup-tip { background: var(--ink); border: 1px solid var(--line-strong); }
+#dealermap .leaflet-popup-close-button { color: var(--steel); }
+
+.dpin {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  background: var(--red);
+  border: 2px solid var(--bone);
+  color: var(--bone);
+  font-family: var(--display); font-size: 16px; line-height: 1;
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+.dpin--factory { background: var(--ink); border-color: var(--red-bright); color: var(--red-bright); }
+
+.dmap-side { display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--coal-2); min-height: 0; }
+.dmap-controls { padding: 18px; border-bottom: 1px solid var(--line); }
+.dmap-controls form { display: flex; gap: 8px; }
+.dmap-controls input {
+  flex: 1; min-width: 0;
+  font: inherit; color: var(--bone);
+  background: var(--panel); border: 1px solid var(--line-strong);
+  padding: 10px 12px;
+}
+.dmap-controls input:focus { outline: none; border-color: var(--red-bright); }
+.dmap-controls input::placeholder { color: var(--steel-dim); }
+.dmap-locate {
+  margin-top: 10px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--cond); font-weight: 600; font-size: 13.5px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bone-dim);
+  transition: color 0.25s ease;
+}
+.dmap-locate:hover { color: var(--red-bright); }
+.dmap-status { margin-top: 10px; font-size: 13.5px; color: var(--steel); min-height: 1.2em; }
+#dmap-list { overflow-y: auto; flex: 1; }
+#dmap-list li { border-bottom: 1px solid var(--line); }
+.dmap-item {
+  display: block; width: 100%; text-align: left;
+  padding: 13px 18px;
+  transition: background 0.25s ease;
+}
+.dmap-item:hover { background: var(--panel); }
+.dmap-item__name {
+  display: block;
+  font-family: var(--cond); font-weight: 600; font-size: 15px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--bone);
+}
+.dmap-item__meta { display: block; margin-top: 3px; font-size: 13px; color: var(--bone-dim); }
+.dmap-note {
+  padding: 14px 18px; border-top: 1px solid var(--line);
+  font-size: 13px; color: var(--steel); font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .dmap { grid-template-columns: 1fr; }
+  .dmap-side { border-left: 0; border-top: 1px solid var(--line); }
+  #dmap-list { max-height: 300px; }
+  #dealermap { height: clamp(320px, 48vh, 480px); }
+}

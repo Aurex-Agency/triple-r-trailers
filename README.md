@@ -27,6 +27,7 @@ Hand-built static site. No frameworks, no build step. Deployable to any static h
 
 - Facebook page URL in the footer is still generic (facebook.com)
 - Forms open a prefilled email to triplertrailers@gmail.com; swap in a form service (Formspree, Netlify Forms, etc.) at launch for direct submissions
-- Dealer list on Find a Dealer is names only; add cities and phones when the office export arrives to enable a real locator
+- Dealer map (Leaflet, self-hosted) is live on Find a Dealer with the factory pinned; add each dealer's city, phone, lat, and lng in `js/dealers.js` (one line per dealer) as the office confirms them and pins appear automatically
+- Map tiles come from openstreetmap.org; swap the tile URL in `js/dealer-map.js` to a keyed provider (MapTiler, Stadia) if traffic grows
 - Dealer portal is a front end placeholder; wire auth when pricing docs are ready
 - Canonical URLs point at https://triplertrailers.com with .html paths; adjust rewrites at hosting if clean URLs are preferred
