@@ -1631,3 +1631,14 @@ a.tile { display: block; }
   .showcase__media .blend img { height: clamp(220px, 46vw, 320px); }
   .showcase__num { top: 6px; }
 }
+
+/* Service area hub */
+.sa-state { padding-block: 26px; border-bottom: 1px solid var(--line); }
+.sa-state:first-child { border-top: 1px solid var(--line); }
+.sa-state__name {
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(22px, 2.6vw, 32px);
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.sa-state__name a { color: var(--bone); transition: color 0.25s ease; }
+.sa-state__name a:hover { color: var(--red-bright); }

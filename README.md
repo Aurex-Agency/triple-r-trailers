@@ -4,7 +4,7 @@ Marketing website for Triple R Trailers of Booneville, Mississippi. Heavy-duty t
 
 ## Status
 
-Full site built: homepage, trailers hub plus 6 category pages, Find a Dealer, Become a Dealer, Dealer Login, Parts & Service, About, Contact, 6 state landing pages, and a guides hub with 7 SEO articles. sitemap.xml and robots.txt included.
+Full site built: homepage, trailers hub plus 6 category pages, Find a Dealer with interactive dealer map, Become a Dealer, Dealer Login, Parts & Service, About, Contact, 6 state landing pages, 50 city landing pages plus a service-area hub, and a guides hub with 7 SEO articles. sitemap.xml and robots.txt included. City pages are generated from scratchpad tooling with computed factory distances and nearest-dealer tables; regenerate by editing the city data and rerunning the generator (see git history).
 
 ## Stack
 
