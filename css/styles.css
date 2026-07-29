@@ -1483,7 +1483,12 @@ a.tile { display: block; }
 }
 .dpin--factory { background: var(--ink); border-color: var(--red-bright); color: var(--red-bright); }
 
-.dmap-side { display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--coal-2); min-height: 0; }
+.dmap-side {
+  display: flex; flex-direction: column;
+  border-left: 1px solid var(--line); background: var(--coal-2);
+  min-height: 0;
+  max-height: clamp(420px, 55vh, 620px);
+}
 .dmap-controls { padding: 18px; border-bottom: 1px solid var(--line); }
 .dmap-controls form { display: flex; gap: 8px; }
 .dmap-controls input {
@@ -1529,4 +1534,10 @@ a.tile { display: block; }
   .dmap-side { border-left: 0; border-top: 1px solid var(--line); }
   #dmap-list { max-height: 300px; }
   #dealermap { height: clamp(320px, 48vh, 480px); }
+}
+
+.dealercols__loc {
+  display: block; margin-top: 1px;
+  font-size: 12px; letter-spacing: 0.1em;
+  color: var(--steel);
 }
