@@ -181,6 +181,22 @@
     }, { once: true });
   });
 
+  /* ---------- Mail-backed forms ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('form[data-mailform]'), function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var subject = form.getAttribute('data-mailform');
+      var lines = [];
+      Array.prototype.forEach.call(form.elements, function (el) {
+        if (el.name && el.value) lines.push(el.name + ': ' + el.value);
+      });
+      var href = 'mailto:triplertrailers@gmail.com' +
+        '?subject=' + encodeURIComponent(subject + ' from triplertrailers.com') +
+        '&body=' + encodeURIComponent(lines.join('\n'));
+      window.location.href = href;
+    });
+  });
+
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());

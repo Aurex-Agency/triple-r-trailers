@@ -4,7 +4,7 @@ Marketing website for Triple R Trailers of Booneville, Mississippi. Heavy-duty t
 
 ## Status
 
-The homepage is built and sets the design system for the rest of the site. Remaining pages (Trailers, Find a Dealer, Become a Dealer, Parts & Service, About, Contact, Dealer Login, location landing pages, SEO articles) will follow the same system.
+Full site built: homepage, trailers hub plus 6 category pages, Find a Dealer, Become a Dealer, Dealer Login, Parts & Service, About, Contact, 6 state landing pages, and a guides hub with 7 SEO articles. sitemap.xml and robots.txt included.
 
 ## Stack
 
@@ -23,8 +23,10 @@ Hand-built static site. No frameworks, no build step. Deployable to any static h
 - Texture: film grain overlay, hazard-stripe accents, blueprint grid, outlined ghost type
 - Animations: slat headline reveals, rubber-stamp badge entrance, self-drawing SVG trailer line art, angled marquee, count-up stats. All gated behind `prefers-reduced-motion`
 
-## Placeholders to replace before launch
+## Before launch
 
-- Phone number `(662) 555-0134` (appears in the header, drawer, CTA, and footer, plus `tel:` links)
-- Street address (footer shows city/state/zip only)
-- Facebook page URL in the footer
+- Facebook page URL in the footer is still generic (facebook.com)
+- Forms open a prefilled email to triplertrailers@gmail.com; swap in a form service (Formspree, Netlify Forms, etc.) at launch for direct submissions
+- Dealer list on Find a Dealer is names only; add cities and phones when the office export arrives to enable a real locator
+- Dealer portal is a front end placeholder; wire auth when pricing docs are ready
+- Canonical URLs point at https://triplertrailers.com with .html paths; adjust rewrites at hosting if clean URLs are preferred
