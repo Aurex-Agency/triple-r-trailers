@@ -1716,3 +1716,16 @@ a.tile { display: block; }
   .photomarquee { overflow-x: auto; }
   .photomarquee__track { animation: none; }
 }
+
+.about-photocol { align-self: start; }
+.about-photocap {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 4px; padding-left: 8px;
+  font-family: var(--cond); font-weight: 600; font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--steel);
+}
+.about-photocap::before {
+  content: ''; width: 7px; height: 7px; flex: none;
+  background: var(--red); transform: rotate(45deg);
+}
