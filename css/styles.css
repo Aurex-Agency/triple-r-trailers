@@ -1642,3 +1642,27 @@ a.tile { display: block; }
 }
 .sa-state__name a { color: var(--bone); transition: color 0.25s ease; }
 .sa-state__name a:hover { color: var(--red-bright); }
+
+/* Dealer portal */
+.portal-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--line); background: var(--coal-2);
+}
+.portal-who { font-size: 15px; color: var(--bone-dim); }
+.portal-who strong { color: var(--bone); }
+.doclist { margin-top: 20px; border-top: 1px solid var(--line); max-width: 860px; }
+.doclist li { border-bottom: 1px solid var(--line); }
+.doclist .portal-empty { padding: 18px 4px; color: var(--bone-dim); font-size: 15.5px; }
+.doclink {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 18px;
+  padding: 16px 8px;
+  transition: background 0.25s ease;
+}
+.doclink:hover { background: var(--coal-2); }
+.doclink__name {
+  font-family: var(--cond); font-weight: 600; font-size: 17px;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--bone);
+}
+.doclink:hover .doclink__name { color: var(--red-bright); }
+.doclink__meta { font-size: 13.5px; color: var(--steel); white-space: nowrap; }

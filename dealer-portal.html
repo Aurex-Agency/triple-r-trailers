@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dealer Login | Triple R Trailers Dealer Portal</title>
-  <meta name="description" content="Dealer login for Triple R Trailers. Approved dealers sign in to view current price lists, the factory options list, and dealer documents. Request portal access here.">
-  <link rel="canonical" href="https://triplertrailers.com/dealer-login.html">
-  <meta property="og:title" content="Dealer Login | Triple R Trailers Dealer Portal">
-  <meta property="og:description" content="Dealer login for Triple R Trailers. Approved dealers sign in to view current price lists, the factory options list, and dealer documents. Request portal access here.">
+  <title>Dealer Portal | Triple R Trailers</title>
+  <meta name="description" content="Private dealer portal for Triple R Trailers dealers.">
+  <link rel="canonical" href="https://triplertrailers.com/dealer-portal.html">
+  <meta property="og:title" content="Dealer Portal | Triple R Trailers">
+  <meta property="og:description" content="Private dealer portal for Triple R Trailers dealers.">
   <meta property="og:image" content="https://triplertrailers.com/assets/img/logo-badge.png">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#111315">
@@ -17,6 +17,7 @@
   <link rel="preload" href="assets/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/styles.css">
+  <meta name="robots" content="noindex, nofollow">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,9 +38,6 @@
     },
     "areaServed": ["Mississippi", "Tennessee", "Alabama", "Arkansas", "Missouri", "Louisiana"]
   }
-  </script>
-  <script type="application/ld+json">
-  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://triplertrailers.com/index.html"}, {"@type": "ListItem", "position": 2, "name": "Dealer Login", "item": "https://triplertrailers.com/dealer-login.html"}]}
   </script>
 </head>
 <body>
@@ -120,59 +118,30 @@
     <section class="pagehero">
       <div class="pagehero__ghost" aria-hidden="true">RRR</div>
       <div class="wrap pagehero__inner">
-        <nav class="crumbs rev" style="--i:0" aria-label="Breadcrumb"><a href="index.html">Home</a> <span class="crumbs__sep">/</span> <span>Dealer Login</span></nav>
+        <nav class="crumbs rev" style="--i:0" aria-label="Breadcrumb"><a href="index.html">Home</a> <span class="crumbs__sep">/</span> <a href="dealer-login.html">Dealer Login</a> <span class="crumbs__sep">/</span> <span>Portal</span></nav>
         <p class="eyebrow rev" style="--i:0"><span class="eyebrow__tick" aria-hidden="true"></span>Triple R Trailers</p>
         <h1 class="pagehero__title">
-            <span class="line"><span class="line__in" style="--i:1">Dealer portal</span></span>
+            <span class="line"><span class="line__in" style="--i:1">Dealer documents</span></span>
         </h1>
-        <p class="pagehero__lede rev" style="--i:3">Current price lists, the full options list, and dealer documents, always the latest version. Access is for approved Triple R dealers only.</p>
+        <p class="pagehero__lede rev" style="--i:3">Your current price list and factory documents, always the latest version. Links are private and expire after an hour; reload the page for fresh ones.</p>
       </div>
     </section>
 
-    <section class="sec">
-      <div class="wrap split">
-        <div>
-          <div class="notice" id="portal-unconfigured" style="display:none; margin-bottom:22px;">
-            <strong>The portal is being connected.</strong> Your login will land in your inbox soon. Until then, pricing works the way it always has: call the office at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a>.
-          </div>
-          <header class="sechead sechead--sub rev">
-            <p class="eyebrow"><span class="eyebrow__tick" aria-hidden="true"></span>Dealer Sign In</p>
-            <h2 class="sechead__title">Log in to your pricing</h2>
-            <p class="sechead__lede">Use the email your login invite was sent to. Locked out? Call the office and we will reset you in a minute.</p>
-          </header>
-          <form class="form rev" id="portal-login">
-            <div class="field"><label for="pl-email">Email</label><input id="pl-email" name="email" type="email" autocomplete="email" required></div>
-            <div class="field"><label for="pl-password">Password</label><input id="pl-password" name="password" type="password" autocomplete="current-password" required></div>
-            <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center;">
-              <button class="btn btn--red" type="submit">Sign In</button>
-              <button class="dmap-locate" type="button" id="pl-magic" style="margin-top:0">Email me a sign-in link instead</button>
-            </div>
-            <p class="form__note" id="pl-status" aria-live="polite"></p>
-          </form>
-        </div>
-        <aside class="split__aside rev" id="request">
-          <h3 style="font-family: var(--cond); font-weight: 700; font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone);">Need a login?</h3>
-          <p style="margin-top:12px; font-size:15px; color: var(--bone-dim);">Portal access is for approved Triple R dealers. Request yours and the office will verify you against the dealer list.</p>
-          <form class="form" data-mailform="Dealer Portal Access Request" style="margin-top:18px">
-            <div class="field"><label for="dl-business">Dealership name</label><input id="dl-business" name="Dealership" type="text" required></div>
-            <div class="field"><label for="dl-name">Your name</label><input id="dl-name" name="Name" type="text" required></div>
-            <div class="field"><label for="dl-email">Email for your login</label><input id="dl-email" name="Email" type="email" required></div>
-            <button class="btn btn--red" type="submit">Request Access</button>
-          </form>
-          <p style="margin-top:18px; font-size:14px; color: var(--steel); font-style: italic;">Not a dealer yet? A protected 60 mile territory is one <a href="become-a-dealer.html" style="color: var(--bone-dim); border-bottom:1px solid var(--line-strong);">application</a> away.</p>
-        </aside>
-      </div>
-    </section>
-
-    <section class="bandcta">
+    <section class="sec" id="portal-docs">
       <div class="wrap">
-        <h2 class="bandcta__title rev">Dealers order the easy way.</h2>
-        <p class="bandcta__sub rev">Look up your pricing here, then order by phone or email with the office, same as always.</p>
-        <div class="bandcta__actions rev">
-          <a class="btn btn--red btn--lg" href="tel:+16627287975">Call the Office</a>
-          <a class="btn btn--ghost btn--lg" href="become-a-dealer.html">Become a Dealer</a>
+        <div class="notice" id="portal-unconfigured" style="display:none; margin-bottom:22px;">
+          <strong>The portal is being connected.</strong> Call the office at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> for current pricing.
+          <span id="portal-back" style="display:none"></span>
         </div>
-        <a class="bandcta__phone rev" href="tel:+16627287975">(662) 728-7975</a>
+        <div class="portal-bar rev">
+          <p class="portal-who">Signed in as <strong id="portal-user"></strong></p>
+          <button class="dmap-locate" id="portal-signout" type="button" style="margin-top:0">Sign out</button>
+        </div>
+        <p class="portal-loading" style="color: var(--bone-dim); margin-top: 22px;">Loading your documents...</p>
+        <ul id="portal-doclist" class="doclist rev"></ul>
+        <div class="notice" style="margin-top:34px">
+          <strong>Ordering has not changed.</strong> Price your build here, then order by phone at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> or email <a href="mailto:triplertrailers@gmail.com" style="color: var(--bone); font-weight:600;">triplertrailers@gmail.com</a>, same as always.
+        </div>
       </div>
     </section>
 
