@@ -98,8 +98,10 @@
       var q = input.value.trim();
       if (!q) return;
       setStatus('Searching...');
-      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q))
-        .then(function (r) { return r.json(); })
+      var abort = new AbortController();
+      var timer = setTimeout(function () { abort.abort(); }, 8000);
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q), { signal: abort.signal })
+        .then(function (r) { clearTimeout(timer); return r.json(); })
         .then(function (res) {
           if (res && res.length) {
             goTo(parseFloat(res[0].lat), parseFloat(res[0].lon), q);
