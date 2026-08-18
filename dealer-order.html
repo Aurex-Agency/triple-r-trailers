@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dealer Portal | Triple R Trailers</title>
-  <meta name="description" content="Private dealer portal for Triple R Trailers dealers.">
-  <link rel="canonical" href="https://triplertrailers.com/dealer-portal.html">
-  <meta property="og:title" content="Dealer Portal | Triple R Trailers">
-  <meta property="og:description" content="Private dealer portal for Triple R Trailers dealers.">
+  <title>Build an Order | Triple R Dealer Portal</title>
+  <meta name="description" content="Private dealer ordering for Triple R Trailers dealers.">
+  <link rel="canonical" href="https://triplertrailers.com/dealer-order.html">
+  <meta property="og:title" content="Build an Order | Triple R Dealer Portal">
+  <meta property="og:description" content="Private dealer ordering for Triple R Trailers dealers.">
   <meta property="og:image" content="https://triplertrailers.com/assets/img/logo-badge.png">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#111315">
@@ -115,24 +115,24 @@
 
   <main id="main">
 
-    <section class="pagehero">
+    <section class="pagehero pagehero--short">
       <div class="pagehero__ghost" aria-hidden="true">RRR</div>
       <div class="wrap pagehero__inner">
-        <nav class="crumbs rev" style="--i:0" aria-label="Breadcrumb"><a href="index.html">Home</a> <span class="crumbs__sep">/</span> <a href="dealer-login.html">Dealer Login</a> <span class="crumbs__sep">/</span> <span>Portal</span></nav>
-        <p class="eyebrow rev" style="--i:0"><span class="eyebrow__tick" aria-hidden="true"></span>Triple R Trailers</p>
+        <nav class="crumbs rev" style="--i:0" aria-label="Breadcrumb"><a href="index.html">Home</a> <span class="crumbs__sep">/</span> <a href="dealer-portal.html">Dealer Portal</a> <span class="crumbs__sep">/</span> <span>Build an Order</span></nav>
+        <p class="eyebrow rev" style="--i:0"><span class="eyebrow__tick" aria-hidden="true"></span>Dealer Ordering</p>
         <h1 class="pagehero__title">
-            <span class="line"><span class="line__in" style="--i:1">Dealer documents</span></span>
+            <span class="line"><span class="line__in" style="--i:1">Build your order</span></span>
         </h1>
-        <p class="pagehero__lede rev" style="--i:3">Your current price list and factory documents, always the latest version. Links are private and expire after an hour; reload the page for fresh ones.</p>
+        <p class="pagehero__lede rev" style="--i:3">Spec the trailers you want at your dealer pricing, then send the whole list to Booneville in one shot. Nothing is charged here. The office confirms the build and the lead time before anything gets welded. <span id="ob-stamp"></span></p>
       </div>
     </section>
 
-    <section class="sec" id="portal-docs">
+    <section class="sec sec--tight" id="ob-root">
       <div class="wrap">
         <div class="notice" id="portal-unconfigured" style="display:none; margin-bottom:22px;">
-          <strong>The portal is being connected.</strong> Call the office at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> for current pricing.
-          <span id="portal-back" style="display:none"></span>
+          <strong>The portal is being connected.</strong> Ordering opens as soon as the factory finishes setup. Call the office at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> to place an order today.
         </div>
+        <div id="portal-shell">
         <div class="portal-bar">
           <div>
             <p class="portal-who">Signed in as <strong id="portal-user"></strong></p>
@@ -142,21 +142,52 @@
         </div>
 
         <nav class="portal-nav" aria-label="Dealer portal">
-          <a href="dealer-portal.html" class="is-on">Documents</a>
-          <a href="dealer-order.html">Build an Order</a>
+          <a href="dealer-portal.html">Documents</a>
+          <a href="dealer-order.html" class="is-on">Build an Order</a>
           <a href="dealer-requests.html">My Requests<span class="portal-nav__badge" id="ob-cartcount"></span></a>
         </nav>
-        <p class="portal-loading" style="color: var(--bone-dim); margin-top: 22px;">Loading your documents...</p>
-        <ul id="portal-doclist" class="doclist rev"></ul>
-        <div class="notice" style="margin-top:34px">
-          <strong>Ready to order?</strong> <a href="dealer-order.html" style="color: var(--bone); font-weight:600; border-bottom: 2px solid var(--red);">Build it in the portal</a> and the whole spec lands on the office desk. Prefer the phone? <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> works the same as always.
+
+          <div class="ob-grid">
+            <div class="ob-main">
+              <h2 class="ob-h">What are you ordering?</h2>
+              <div class="ob-cats" id="ob-cats"></div>
+              <div id="ob-lines"></div>
+              <div id="ob-config"></div>
+            </div>
+
+            <aside class="ob-cart" id="ob-cart">
+              <h2 class="ob-cart__title">This request</h2>
+              <div id="ob-cartbody"></div>
+
+              <div id="ob-submitwrap" style="display:none">
+                <form class="ob-form" id="ob-submit">
+                  <h3 class="ob-h3">Send it to the factory</h3>
+                  <div class="ob-field"><label for="ob-name">Your name</label>
+                    <input id="ob-name" name="name" type="text" autocomplete="name" required></div>
+                  <div class="ob-field"><label for="ob-phone">Phone</label>
+                    <input id="ob-phone" name="phone" type="tel" autocomplete="tel" required></div>
+                  <div class="ob-field"><label for="ob-email">Email</label>
+                    <input id="ob-email" name="email" type="email" autocomplete="email" required></div>
+                  <div class="ob-field"><label for="ob-po">Your PO number <span>optional</span></label>
+                    <input id="ob-po" name="po" type="text"></div>
+                  <div class="ob-field"><label for="ob-needed">Needed by <span>optional</span></label>
+                    <input id="ob-needed" name="needed" type="date"></div>
+                  <div class="ob-field"><label for="ob-ordernotes">Anything else <span>optional</span></label>
+                    <textarea id="ob-ordernotes" name="notes" rows="3" placeholder="Delivery, staging, who to call."></textarea></div>
+                  <button class="btn btn--red" id="ob-send" type="submit">Send this request</button>
+                  <p class="ob-status" id="ob-status"></p>
+                  <p class="ob-fine">This is a request, not a purchase. No card, no charge. The office prices freight and confirms availability, then calls you back.</p>
+                </form>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
     </section>
 
   <script src="assets/vendor/supabase/supabase.js" defer></script>
   <script src="js/portal-config.js" defer></script>
-  <script src="js/dealer-portal.js" defer></script>
+  <script src="js/dealer-order.js" defer></script>
 
   </main>
 

@@ -1,0 +1,4 @@
+# Never deploy these to the public web.
+# docs/ holds the Supabase schema and the DEALER NET price list seed.
+docs/
+README.md

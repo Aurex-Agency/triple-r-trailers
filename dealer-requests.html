@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dealer Portal | Triple R Trailers</title>
-  <meta name="description" content="Private dealer portal for Triple R Trailers dealers.">
-  <link rel="canonical" href="https://triplertrailers.com/dealer-portal.html">
-  <meta property="og:title" content="Dealer Portal | Triple R Trailers">
-  <meta property="og:description" content="Private dealer portal for Triple R Trailers dealers.">
+  <title>My Requests | Triple R Dealer Portal</title>
+  <meta name="description" content="Order requests your dealership has sent to Triple R Trailers.">
+  <link rel="canonical" href="https://triplertrailers.com/dealer-requests.html">
+  <meta property="og:title" content="My Requests | Triple R Dealer Portal">
+  <meta property="og:description" content="Order requests your dealership has sent to Triple R Trailers.">
   <meta property="og:image" content="https://triplertrailers.com/assets/img/logo-badge.png">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#111315">
@@ -115,24 +115,24 @@
 
   <main id="main">
 
-    <section class="pagehero">
+    <section class="pagehero pagehero--short">
       <div class="pagehero__ghost" aria-hidden="true">RRR</div>
       <div class="wrap pagehero__inner">
-        <nav class="crumbs rev" style="--i:0" aria-label="Breadcrumb"><a href="index.html">Home</a> <span class="crumbs__sep">/</span> <a href="dealer-login.html">Dealer Login</a> <span class="crumbs__sep">/</span> <span>Portal</span></nav>
-        <p class="eyebrow rev" style="--i:0"><span class="eyebrow__tick" aria-hidden="true"></span>Triple R Trailers</p>
+        <nav class="crumbs rev" style="--i:0" aria-label="Breadcrumb"><a href="index.html">Home</a> <span class="crumbs__sep">/</span> <a href="dealer-portal.html">Dealer Portal</a> <span class="crumbs__sep">/</span> <span>My Requests</span></nav>
+        <p class="eyebrow rev" style="--i:0"><span class="eyebrow__tick" aria-hidden="true"></span>Dealer Ordering</p>
         <h1 class="pagehero__title">
-            <span class="line"><span class="line__in" style="--i:1">Dealer documents</span></span>
+            <span class="line"><span class="line__in" style="--i:1">Your requests</span></span>
         </h1>
-        <p class="pagehero__lede rev" style="--i:3">Your current price list and factory documents, always the latest version. Links are private and expire after an hour; reload the page for fresh ones.</p>
+        <p class="pagehero__lede rev" style="--i:3">Everything your dealership has sent to Booneville, newest first, with where each one stands. Questions on any of them, call the office at (662) 728-7975 and give them the request number.</p>
       </div>
     </section>
 
-    <section class="sec" id="portal-docs">
+    <section class="sec sec--tight" id="rq-root">
       <div class="wrap">
         <div class="notice" id="portal-unconfigured" style="display:none; margin-bottom:22px;">
-          <strong>The portal is being connected.</strong> Call the office at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> for current pricing.
-          <span id="portal-back" style="display:none"></span>
+          <strong>The portal is being connected.</strong> Ordering opens as soon as the factory finishes setup. Call the office at <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> to place an order today.
         </div>
+        <div id="portal-shell">
         <div class="portal-bar">
           <div>
             <p class="portal-who">Signed in as <strong id="portal-user"></strong></p>
@@ -142,21 +142,18 @@
         </div>
 
         <nav class="portal-nav" aria-label="Dealer portal">
-          <a href="dealer-portal.html" class="is-on">Documents</a>
+          <a href="dealer-portal.html">Documents</a>
           <a href="dealer-order.html">Build an Order</a>
-          <a href="dealer-requests.html">My Requests<span class="portal-nav__badge" id="ob-cartcount"></span></a>
+          <a href="dealer-requests.html" class="is-on">My Requests<span class="portal-nav__badge" id="ob-cartcount"></span></a>
         </nav>
-        <p class="portal-loading" style="color: var(--bone-dim); margin-top: 22px;">Loading your documents...</p>
-        <ul id="portal-doclist" class="doclist rev"></ul>
-        <div class="notice" style="margin-top:34px">
-          <strong>Ready to order?</strong> <a href="dealer-order.html" style="color: var(--bone); font-weight:600; border-bottom: 2px solid var(--red);">Build it in the portal</a> and the whole spec lands on the office desk. Prefer the phone? <a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a> works the same as always.
+          <div id="rq-list"></div>
         </div>
       </div>
     </section>
 
   <script src="assets/vendor/supabase/supabase.js" defer></script>
   <script src="js/portal-config.js" defer></script>
-  <script src="js/dealer-portal.js" defer></script>
+  <script src="js/dealer-order.js" defer></script>
 
   </main>
 
