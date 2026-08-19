@@ -1,7 +1,6 @@
 {
   "redirects": [
     {
-      "comment": "docs/ holds the Supabase schema and the DEALER NET price list seed. .vercelignore should keep it out of the deploy entirely; this is the second lock. Redirects are evaluated before static files are served, so it blocks the path even if a file is present.",
       "source": "/docs/:path*",
       "destination": "/",
       "permanent": false
