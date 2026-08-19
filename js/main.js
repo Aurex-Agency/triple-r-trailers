@@ -3,6 +3,7 @@
   'use strict';
 
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var refreshScrollFx = null;
 
   /* ---------- Header scroll state ---------- */
   var header = document.getElementById('header');
@@ -92,21 +93,34 @@
     });
   }
 
-  /* ---------- Hero ghost parallax ---------- */
+  /* ---------- Scroll effects: ghost type + photo parallax ---------- */
   var ghost = document.querySelector('.hero__ghost');
-  if (ghost && !reducedMotion) {
-    var ticking = false;
-    window.addEventListener('scroll', function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () {
-        var y = window.scrollY;
-        if (y < window.innerHeight * 1.4) {
-          ghost.style.transform = 'translateY(' + y * 0.18 + 'px)';
-        }
-        ticking = false;
+  var plxEls = Array.prototype.slice.call(document.querySelectorAll('[data-plx]'));
+  if (!reducedMotion && (ghost || plxEls.length)) {
+    var fxTicking = false;
+    var applyScrollFx = function () {
+      var y = window.scrollY;
+      var vh = window.innerHeight;
+      if (ghost && y < vh * 1.4) {
+        ghost.style.transform = 'translateY(' + y * 0.18 + 'px)';
+      }
+      plxEls.forEach(function (el) {
+        var host = el.parentElement;
+        var r = host.getBoundingClientRect();
+        if (r.bottom < -vh || r.top > vh * 2) return;
+        var mid = r.top + r.height / 2 - vh / 2;
+        var f = parseFloat(el.getAttribute('data-plx')) || 0.05;
+        var s = el.getAttribute('data-plx-scale') || '1.12';
+        el.style.transform = 'translateY(' + (-mid * f).toFixed(1) + 'px)' + (s === '1' ? '' : ' scale(' + s + ')');
       });
+      fxTicking = false;
+    };
+    refreshScrollFx = applyScrollFx;
+    window.addEventListener('scroll', function () {
+      if (!fxTicking) { fxTicking = true; requestAnimationFrame(applyScrollFx); }
     }, { passive: true });
+    window.addEventListener('resize', function () { requestAnimationFrame(applyScrollFx); }, { passive: true });
+    applyScrollFx();
   }
 
   /* ---------- Featured tabs ---------- */
@@ -125,6 +139,8 @@
           panel.classList.toggle('is-active', active);
           if (active) {
             panel.removeAttribute('hidden');
+            /* position parallax photos before first paint so nothing jumps */
+            if (refreshScrollFx) refreshScrollFx();
             /* replay the line-art draw */
             var art = panel.querySelector('.draw');
             if (art && !reducedMotion) {
@@ -154,6 +170,32 @@
       if (next) { e.preventDefault(); activateTab(next, true); }
     });
   }
+
+  /* ---------- Soft fade-in for lazy-loaded photos ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('.blend img'), function (img) {
+    if (img.complete) return;
+    img.style.opacity = '0';
+    img.addEventListener('load', function () {
+      img.style.transition = 'opacity 0.6s ease';
+      img.style.opacity = '1';
+    }, { once: true });
+  });
+
+  /* ---------- Mail-backed forms ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('form[data-mailform]'), function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var subject = form.getAttribute('data-mailform');
+      var lines = [];
+      Array.prototype.forEach.call(form.elements, function (el) {
+        if (el.name && el.value) lines.push(el.name + ': ' + el.value);
+      });
+      var href = 'mailto:triplertrailers@gmail.com' +
+        '?subject=' + encodeURIComponent(subject + ' from triplertrailers.com') +
+        '&body=' + encodeURIComponent(lines.join('\n'));
+      window.location.href = href;
+    });
+  });
 
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById('year');
