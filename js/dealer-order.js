@@ -28,6 +28,16 @@
   var ORDER_EMAIL = cfg.ORDER_EMAIL || 'triplertrailers@gmail.com';
   var PHONE = '(662) 728-7975';
 
+  /* Real yard photography, so picking a category looks like a lot, not a form. */
+  var CATEGORY_ART = {
+    'utility': 'assets/img/photos/strip/utility-sunset.jpg',
+    'enclosed': 'assets/img/photos/strip/enclosed-charcoal-34.jpg',
+    'dump': 'assets/img/photos/strip/dump-bed-up.jpg',
+    'car-hauler': 'assets/img/photos/strip/carhauler-wood-deck.jpg',
+    'equipment': 'assets/img/photos/equipment-long-deck.jpg',
+    'gooseneck': 'assets/img/photos/strip/gooseneck-rrr.jpg'
+  };
+
   /* ------------------------------------------------------------------ util */
 
   function esc(s) {
@@ -135,6 +145,11 @@
     return null;
   }
 
+  function byId2(list, key, val) {
+    for (var i = 0; i < list.length; i++) if (list[i][key] === val) return list[i];
+    return null;
+  }
+
   /* Resolves a cart entry into display data. */
   function priceItem(entry) {
     var model = byId(state.models, entry.modelId);
@@ -207,20 +222,49 @@
 
   /* ----------------------------------------------------------- build page */
 
+  /* Marks how far along the build is, so the page reads as steps not a wall. */
+  function renderSteps() {
+    var wrap = el('ob-steps');
+    if (!wrap) return;
+    var t = cartTotals();
+    var steps = [
+      { n: '01', label: 'Category', done: !!state.activeCategory },
+      { n: '02', label: 'Model', done: !!state.activeLine },
+      { n: '03', label: 'Spec it', done: state.cart.length > 0 },
+      { n: '04', label: 'Send', done: false }
+    ];
+    var active = state.cart.length ? 3 : (state.activeLine ? 2 : (state.activeCategory ? 1 : 0));
+    wrap.innerHTML = steps.map(function (s, i) {
+      var cls = 'ob-step' + (i === active ? ' is-on' : '') + (s.done && i < active ? ' is-done' : '');
+      return '<li class="' + cls + '"><span class="ob-step__n">' + s.n + '</span>' +
+        '<span class="ob-step__l">' + esc(s.label) + '</span></li>';
+    }).join('');
+    if (t.count) {
+      wrap.setAttribute('data-count', t.count + (t.count === 1 ? ' trailer' : ' trailers'));
+    } else {
+      wrap.removeAttribute('data-count');
+    }
+  }
+
   function renderCategories() {
     var wrap = el('ob-cats');
     if (!wrap) return;
     wrap.innerHTML = state.categories.map(function (c) {
       var n = state.lines.filter(function (l) { return l.category === c.slug; }).length;
+      var art = CATEGORY_ART[c.slug];
       return '<button type="button" class="ob-cat' + (c.slug === state.activeCategory ? ' is-on' : '') +
-        '" data-cat="' + esc(c.slug) + '"><span>' + esc(c.name) + '</span><em>' + n +
-        (n === 1 ? ' line' : ' lines') + '</em></button>';
+        '" data-cat="' + esc(c.slug) + '">' +
+        (art ? '<img class="ob-cat__img" src="' + esc(art) + '" alt="" loading="lazy" width="280" height="170">' : '') +
+        '<span class="ob-cat__body">' +
+          '<span class="ob-cat__name">' + esc(c.name) + '</span>' +
+          '<span class="ob-cat__meta">' + n + (n === 1 ? ' model line' : ' model lines') + '</span>' +
+        '</span></button>';
     }).join('');
     Array.prototype.forEach.call(wrap.querySelectorAll('[data-cat]'), function (b) {
       b.addEventListener('click', function () {
         state.activeCategory = b.getAttribute('data-cat');
         state.activeLine = null;
-        renderCategories(); renderLines(); renderConfig();
+        renderCategories(); renderLines(); renderConfig(); renderSteps();
       });
     });
   }
@@ -230,7 +274,7 @@
     if (!wrap) return;
     var lines = state.lines.filter(function (l) { return l.category === state.activeCategory; });
     if (!lines.length) { wrap.innerHTML = ''; return; }
-    wrap.innerHTML = '<h2 class="ob-h">Pick a model line</h2><div class="ob-linegrid">' +
+    wrap.innerHTML = '<h2 class="ob-h"><span class="ob-h__n">02</span>Pick a model line</h2><div class="ob-linegrid">' +
       lines.map(function (l) {
         var models = state.models.filter(function (m) { return m.line_id === l.id; });
         var prices = [];
@@ -242,15 +286,20 @@
         var from = prices.length ? Math.min.apply(null, prices) : null;
         return '<button type="button" class="ob-line' + (state.activeLine === l.id ? ' is-on' : '') +
           '" data-line="' + esc(l.id) + '">' +
-          '<span class="ob-line__name">' + esc(l.name) + '</span>' +
+          '<span class="ob-line__head">' +
+            '<span class="ob-line__name">' + esc(l.name) + '</span>' +
+            (from !== null
+              ? '<span class="ob-line__from"><em>from</em>' + money(from) + '</span>'
+              : '<span class="ob-line__from ob-line__from--q">Quoted</span>') +
+          '</span>' +
           '<span class="ob-line__blurb">' + esc(l.blurb || '') + '</span>' +
-          '<span class="ob-line__meta">' + models.length + ' sizes' +
-          (from !== null ? ' &middot; from ' + money(from) : ' &middot; quoted') + '</span></button>';
+          '<span class="ob-line__meta">' + models.length + (models.length === 1 ? ' size' : ' sizes') +
+          '<span class="ob-line__go">Spec it</span></span></button>';
       }).join('') + '</div>';
     Array.prototype.forEach.call(wrap.querySelectorAll('[data-line]'), function (b) {
       b.addEventListener('click', function () {
         state.activeLine = b.getAttribute('data-line');
-        renderLines(); renderConfig();
+        renderLines(); renderConfig(); renderSteps();
         var c = el('ob-config');
         if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
@@ -283,11 +332,20 @@
 
     var model = byId(state.models, draft.modelId);
 
+    var art = CATEGORY_ART[line.category];
+    var catName = (function () {
+      var c = byId2(state.categories, 'slug', line.category);
+      return c ? c.name : line.category.replace('-', ' ');
+    })();
+
     var html = '<div class="ob-panel">' +
       '<div class="ob-panel__head">' +
-        '<p class="eyebrow"><span class="eyebrow__tick" aria-hidden="true"></span>' + esc(line.category.replace('-', ' ')) + '</p>' +
-        '<h2 class="ob-panel__title">' + esc(line.name) + '</h2>' +
-        (line.blurb ? '<p class="ob-panel__blurb">' + esc(line.blurb) + '</p>' : '') +
+        (art ? '<img class="ob-panel__art" src="' + esc(art) + '" alt="" loading="lazy" width="200" height="140">' : '') +
+        '<div class="ob-panel__headtext">' +
+          '<p class="eyebrow"><span class="eyebrow__tick" aria-hidden="true"></span>' + esc(catName) + '</p>' +
+          '<h2 class="ob-panel__title">' + esc(line.name) + '</h2>' +
+          (line.blurb ? '<p class="ob-panel__blurb">' + esc(line.blurb) + '</p>' : '') +
+        '</div>' +
       '</div>';
 
     if (line.standards && line.standards.length) {
@@ -354,9 +412,12 @@
       esc(draft.notes) + '</textarea></div>';
 
     var live = draftPrice();
-    html += '<div class="ob-live"><div><span class="ob-live__label">Dealer price, each</span>' +
+    html += '<div class="ob-live"><div class="ob-live__fig">' +
+      '<span class="ob-live__label">Dealer price, each</span>' +
       '<strong class="ob-live__num">' + (live.unit === null ? 'Factory quote' : money(live.unit)) + '</strong>' +
-      (live.optTotal ? '<span class="ob-live__sub">Base ' + money(live.base) + ' plus options ' + money(live.optTotal) + '</span>' : '') +
+      '<span class="ob-live__sub">' + (live.optTotal
+        ? 'Base ' + money(live.base) + ' plus ' + money(live.optTotal) + ' in options'
+        : 'Base price, no options added') + '</span>' +
       '</div><button type="button" class="btn btn--red" id="ob-add">Add to request</button></div>';
 
     html += '</div>';
@@ -443,9 +504,18 @@
     var t = cartTotals();
     var badge = el('ob-cartcount');
     if (badge) badge.textContent = t.count ? String(t.count) : '';
+    var cbadge = el('ob-cartbadge');
+    if (cbadge) cbadge.textContent = t.count ? String(t.count) : '';
+    renderSteps();
 
     if (!state.cart.length) {
-      wrap.innerHTML = '<p class="ob-empty">Nothing on this request yet. Pick a category, choose a model, and add it here.</p>';
+      wrap.innerHTML = '<div class="ob-empty">' +
+        '<svg viewBox="0 0 48 30" width="60" height="38" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">' +
+        '<path d="M2 22h4M42 22h4M6 22a4 4 0 1 0 8 0 4 4 0 1 0-8 0M30 22a4 4 0 1 0 8 0 4 4 0 1 0-8 0"/>' +
+        '<path d="M2 8h34v14M36 12h6l4 6v4"/></svg>' +
+        '<p>Nothing on this request yet.</p>' +
+        '<p class="ob-empty__sub">Pick a category, choose a model, spec it, and it stacks up here.</p>' +
+        '</div>';
       var sb = el('ob-submitwrap'); if (sb) sb.style.display = 'none';
       return;
     }
@@ -650,7 +720,7 @@
     setBusy(el('ob-lines'), 'Loading the current price list...');
     return loadCatalog().then(function () {
       state.activeCategory = state.categories.length ? state.categories[0].slug : null;
-      renderCategories(); renderLines(); renderConfig(); renderCart(); wireSubmit();
+      renderCategories(); renderLines(); renderConfig(); renderCart(); renderSteps(); wireSubmit();
       var stamp = el('ob-stamp');
       if (stamp) stamp.textContent = state.models.length + ' builds on the current dealer price list.';
     }).catch(function (err) {
