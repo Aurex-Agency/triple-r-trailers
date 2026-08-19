@@ -1,11 +1,12 @@
 /* Triple R Trailers dealer portal configuration.
-   After creating the Supabase project (see docs/DEALER-PORTAL-SETUP.md),
-   paste the Project URL and anon public key below. The anon key is safe to
-   publish; all security is enforced server side by Supabase policies.
-   Dealer pricing is NOT in this file. It lives in the database, behind login. */
+   The anon key is designed to be public. Every table is protected by row
+   level security, so this key alone reads nothing it should not.
+   The service_role key is the master key and must NEVER appear in this file.
+   Dealer pricing is not here either. It lives in the database, behind login.
+   Setup steps: docs/DEALER-PORTAL-SETUP.md */
 window.TRIPLE_R_PORTAL = {
-  SUPABASE_URL: "PASTE_PROJECT_URL_HERE",
-  SUPABASE_ANON_KEY: "PASTE_ANON_PUBLIC_KEY_HERE",
+  SUPABASE_URL: "https://pqjztgmvzsryknuylyod.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxanp0Z212enNyeWtudXlseW9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNjc5NDYsImV4cCI6MjEwMjc0Mzk0Nn0.0tLltj9ZJMzzxz4VPv1LxtBOEBdh9MLqWGl8mUTi_48",
   DOCS_BUCKET: "dealer-docs",
   ORDER_EMAIL: "triplertrailers@gmail.com"
 };
