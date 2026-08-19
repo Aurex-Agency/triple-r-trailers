@@ -321,7 +321,9 @@
       draft = {
         lineId: line.id, modelId: models[0] ? models[0].id : null,
         variantKey: variants[0].key, qty: 1, notes: '',
-        options: {}, lineOptions: {}
+        options: {}, lineOptions: {},
+        /* which option groups the dealer has opened, so a re-render keeps them open */
+        openGroups: { __line: true }
       };
     }
 
@@ -376,7 +378,8 @@
     if (groupNames.length || lopts.length) {
       html += '<div class="ob-opts"><h3 class="ob-h3">Options</h3>';
       if (lopts.length) {
-        html += '<details class="ob-group" open><summary>For this model line</summary><div class="ob-optlist">' +
+        html += '<details class="ob-group" data-group="__line"' + (draft.openGroups.__line ? ' open' : '') +
+          '><summary>For this model line</summary><div class="ob-optlist">' +
           lopts.map(function (o) {
             return '<label class="ob-opt"><input type="checkbox" data-lopt="' + esc(o.id) + '"' +
               (draft.lineOptions[o.id] ? ' checked' : '') + '><span class="ob-opt__label">' + esc(o.label) +
@@ -384,7 +387,8 @@
           }).join('') + '</div></details>';
       }
       groupNames.forEach(function (g) {
-        html += '<details class="ob-group"><summary>' + esc(g) + '</summary><div class="ob-optlist">' +
+        html += '<details class="ob-group" data-group="' + esc(g) + '"' + (draft.openGroups[g] ? ' open' : '') +
+          '><summary>' + esc(g) + '</summary><div class="ob-optlist">' +
           groups[g].map(function (o) {
             var p = model ? optionPrice(o, model, draft.options[o.id] && draft.options[o.id].qty) : { price: null, callFor: true };
             var priceTxt = o.price_type === 'call' ? 'Call for pricing'
@@ -423,28 +427,50 @@
     html += '</div>';
     wrap.innerHTML = html;
 
+    /* Ticking an option changes only the total, so update the figure in place.
+       Re-rendering here would rebuild the accordions and snap shut the very
+       group the dealer is working in. */
+    function updateLive() {
+      var lv = draftPrice();
+      var n = wrap.querySelector('.ob-live__num');
+      var s = wrap.querySelector('.ob-live__sub');
+      if (n) n.textContent = lv.unit === null ? 'Factory quote' : money(lv.unit);
+      if (s) {
+        s.textContent = lv.optTotal
+          ? 'Base ' + money(lv.base) + ' plus ' + money(lv.optTotal) + ' in options'
+          : 'Base price, no options added';
+      }
+    }
+
+    /* Size and package do change what the options cost, so those re-render. */
     var m = el('ob-model'); if (m) m.addEventListener('change', function () { draft.modelId = m.value; renderConfig(); });
     var v = el('ob-variant'); if (v) v.addEventListener('change', function () { draft.variantKey = v.value; renderConfig(); });
     var q = el('ob-qty'); if (q) q.addEventListener('input', function () {
       draft.qty = Math.max(1, Math.min(99, parseInt(q.value, 10) || 1));
-      var lv = draftPrice(); var n = wrap.querySelector('.ob-live__num');
-      if (n) n.textContent = lv.unit === null ? 'Factory quote' : money(lv.unit);
+      updateLive();
     });
     var nt = el('ob-notes'); if (nt) nt.addEventListener('input', function () { draft.notes = nt.value; });
+
+    /* Remember which accordions are open so a size change does not close them. */
+    Array.prototype.forEach.call(wrap.querySelectorAll('details[data-group]'), function (d) {
+      d.addEventListener('toggle', function () {
+        draft.openGroups[d.getAttribute('data-group')] = d.open;
+      });
+    });
 
     Array.prototype.forEach.call(wrap.querySelectorAll('[data-opt]'), function (cb) {
       cb.addEventListener('change', function () {
         var id = cb.getAttribute('data-opt');
         if (cb.checked) draft.options[id] = { qty: draft.options[id] ? draft.options[id].qty : null };
         else delete draft.options[id];
-        renderConfig();
+        updateLive();
       });
     });
     Array.prototype.forEach.call(wrap.querySelectorAll('[data-lopt]'), function (cb) {
       cb.addEventListener('change', function () {
         var id = cb.getAttribute('data-lopt');
         if (cb.checked) draft.lineOptions[id] = true; else delete draft.lineOptions[id];
-        renderConfig();
+        updateLive();
       });
     });
     Array.prototype.forEach.call(wrap.querySelectorAll('[data-optqty]'), function (inp) {
@@ -453,8 +479,9 @@
         var val = Math.max(1, Math.min(200, parseInt(inp.value, 10) || 1));
         if (!draft.options[id]) draft.options[id] = {};
         draft.options[id].qty = val;
-        var lv = draftPrice(); var n = wrap.querySelector('.ob-live__num');
-        if (n) n.textContent = lv.unit === null ? 'Factory quote' : money(lv.unit);
+        var box = wrap.querySelector('[data-opt="' + id + '"]');
+        if (box && !box.checked) { box.checked = true; draft.options[id].qty = val; }
+        updateLive();
       });
     });
     var add = el('ob-add');
