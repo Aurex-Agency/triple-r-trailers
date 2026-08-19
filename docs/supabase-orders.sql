@@ -8,7 +8,15 @@
 --   * Server-side pricing, so a submitted request cannot carry made-up prices
 --   * An email to the factory the moment a request is submitted
 
-create extension if not exists pg_net with schema extensions;
+-- pg_net is what sends the order email. If it cannot be enabled here, the rest
+-- of this script still installs and orders still save; only the email is
+-- skipped. Enable it later under Database -> Extensions and it starts working.
+do $$
+begin
+  execute 'create extension if not exists pg_net with schema extensions';
+exception when others then
+  raise notice 'pg_net not enabled (%). Everything else installs; order emails stay off until you enable it.', sqlerrm;
+end $$;
 
 -- ===========================================================================
 -- 1. Who is who
@@ -394,7 +402,13 @@ begin
   insert into order_events (order_id, status, note, actor)
   values (v_order.id, 'submitted', 'Request sent from the dealer portal', auth.uid());
 
-  perform notify_order(v_order.id);
+  -- A failing email must never lose a dealer's order. The request is already
+  -- saved and visible in the dashboard either way.
+  begin
+    perform notify_order(v_order.id);
+  exception when others then
+    raise notice 'Request % saved, but the factory email failed: %', v_order.order_no, sqlerrm;
+  end;
 
   return jsonb_build_object('id', v_order.id, 'order_no', v_order.order_no,
                             'subtotal', v_order.subtotal, 'item_count', v_order.item_count,
