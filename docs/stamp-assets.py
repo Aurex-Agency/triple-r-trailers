@@ -42,3 +42,60 @@ for page in glob.glob(f"{REPO}/*.html"):
         if not os.path.exists(os.path.join(REPO, m.group(1))):
             bad.append(f"{os.path.basename(page)} -> {m.group(1)}")
 print("broken asset refs:", sorted(set(bad)) or "none")
+
+
+# sanity: nothing the pages need is excluded from the deploy.
+#
+# This exists because it already happened. ".vercelignore" follows .gitignore
+# rules, where an unanchored "supabase/" matches a directory at ANY depth, so
+# it silently took assets/vendor/supabase/ off the deployment and every dealer
+# login stopped working. A file that exists locally and 404s in production is
+# invisible until somebody tries to sign in.
+def ignore_rules(path):
+    """Returns (matcher, raw) pairs for each .vercelignore pattern."""
+    rules = []
+    if not os.path.exists(path):
+        return rules
+    for raw in open(path, encoding="utf-8"):
+        pat = raw.strip()
+        if not pat or pat.startswith("#"):
+            continue
+        anchored = pat.startswith("/")
+        name = pat.strip("/")
+        rules.append((anchored, name, pat))
+    return rules
+
+
+def excluded(rel, rules):
+    """True if rel would be kept out of the deploy by any rule."""
+    parts = rel.split("/")
+    for anchored, name, pat in rules:
+        segs = name.split("/")
+        if anchored:
+            if parts[:len(segs)] == segs:
+                return pat
+        else:
+            # unanchored: matches at any depth, which is the trap
+            for i in range(len(parts) - len(segs) + 1):
+                if parts[i:i + len(segs)] == segs:
+                    return pat
+    return None
+
+
+rules = ignore_rules(os.path.join(REPO, ".vercelignore"))
+refs = set()
+for page in glob.glob(f"{REPO}/*.html"):
+    body = open(page, encoding="utf-8").read()
+    for m in re.finditer(r'(?:href|src)="(?!https?:|//|mailto:|tel:|#)([^"?#]+)', body):
+        ref = m.group(1)
+        if os.path.exists(os.path.join(REPO, ref)):
+            refs.add(ref)
+
+blocked = sorted({f"{ref}  (kept out by \"{excluded(ref, rules)}\")"
+                  for ref in refs if excluded(ref, rules)})
+if blocked:
+    print("\nDEPLOY WOULD BE MISSING FILES THE PAGES NEED:")
+    for b in blocked:
+        print("  ", b)
+    raise SystemExit("Fix .vercelignore before deploying. Anchor patterns with a leading slash.")
+print(f"deploy check: {len(refs)} referenced files, none excluded by .vercelignore")
