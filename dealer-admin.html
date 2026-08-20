@@ -16,7 +16,7 @@
   <link rel="preload" href="assets/fonts/ultra-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=8d691834">
+  <link rel="stylesheet" href="css/styles.css?v=b5416069">
   <meta name="robots" content="noindex, nofollow">
   <script type="application/ld+json">
   {
@@ -127,7 +127,7 @@
       </div>
     </section>
 
-    <section class="sec sec--tight" id="ad-root">
+    <section class="sec sec--tight" id="od-root">
       <div class="wrap">
         <div class="notice" id="portal-unconfigured" style="display:none; margin-bottom:22px;">
           <strong>The portal is being connected.</strong> Nothing to do here yet.
@@ -149,34 +149,34 @@
           <a href="dealer-admin.html" id="portal-officelink" class="is-on" hidden>Office</a>
         </nav>
 
-          <p class="ob-loading" id="ad-gate">Checking your access...</p>
+          <p class="ob-loading" id="od-gate">Checking your access...</p>
 
-          <div id="ad-body" hidden>
+          <div id="od-body" hidden>
 
             <h2 class="ob-h" style="margin-top:34px"><span class="ob-h__n">01</span>Set up a dealer</h2>
-            <form class="ad-card" id="ad-new">
-              <div class="ad-fields">
-                <div class="ob-field ad-f--wide">
-                  <label for="ad-dealer">Which dealership</label>
-                  <select id="ad-dealer">
+            <form class="od-card" id="od-new">
+              <div class="od-fields">
+                <div class="ob-field od-f--wide">
+                  <label for="od-dealer">Which dealership</label>
+                  <select id="od-dealer">
                     <option value="">Add a new dealership</option>
                   </select>
                 </div>
               </div>
 
-              <div class="ad-sub" id="ad-newdealer">
-                <div class="ad-fields">
-                  <div class="ob-field ad-f--wide">
-                    <label for="ad-dname">Dealership name</label>
-                    <input id="ad-dname" type="text" placeholder="Smith Trailer Sales" maxlength="120">
+              <div class="od-sub" id="od-newdealer">
+                <div class="od-fields">
+                  <div class="ob-field od-f--wide">
+                    <label for="od-dname">Dealership name</label>
+                    <input id="od-dname" type="text" placeholder="Smith Trailer Sales" maxlength="120">
                   </div>
                   <div class="ob-field">
-                    <label for="ad-dcity">Town</label>
-                    <input id="ad-dcity" type="text" placeholder="Corinth" maxlength="80">
+                    <label for="od-dcity">Town</label>
+                    <input id="od-dcity" type="text" placeholder="Corinth" maxlength="80">
                   </div>
-                  <div class="ob-field ad-f--state">
-                    <label for="ad-dstate">State</label>
-                    <select id="ad-dstate">
+                  <div class="ob-field od-f--state">
+                    <label for="od-dstate">State</label>
+                    <select id="od-dstate">
                         <option value="MS">MS</option>
                         <option value="TN">TN</option>
                         <option value="AL">AL</option>
@@ -201,35 +201,35 @@
                     </select>
                   </div>
                   <div class="ob-field">
-                    <label for="ad-dphone">Lot phone <span>optional</span></label>
-                    <input id="ad-dphone" type="tel" placeholder="(662) 555-0100" maxlength="40">
+                    <label for="od-dphone">Lot phone <span>optional</span></label>
+                    <input id="od-dphone" type="tel" placeholder="(662) 555-0100" maxlength="40">
                   </div>
                 </div>
               </div>
 
-              <div class="ad-fields">
+              <div class="od-fields">
                 <div class="ob-field">
-                  <label for="ad-name">Their name</label>
-                  <input id="ad-name" type="text" placeholder="Danny Smith" autocomplete="off" maxlength="120">
+                  <label for="od-name">Their name</label>
+                  <input id="od-name" type="text" placeholder="Danny Smith" autocomplete="off" maxlength="120">
                 </div>
-                <div class="ob-field ad-f--wide">
-                  <label for="ad-email">Their email</label>
-                  <input id="ad-email" type="email" placeholder="danny@smithtrailers.com" autocomplete="off" required maxlength="200">
+                <div class="ob-field od-f--wide">
+                  <label for="od-email">Their email</label>
+                  <input id="od-email" type="email" placeholder="danny@smithtrailers.com" autocomplete="off" required maxlength="200">
                 </div>
               </div>
 
-              <button class="btn btn--red" id="ad-send" type="submit">Send them a login</button>
-              <p class="ob-status" id="ad-status"></p>
+              <button class="btn btn--red" id="od-send" type="submit">Send them a login</button>
+              <p class="ob-status" id="od-status"></p>
               <p class="ob-fine">They get an email from Triple R with a button in it. They click it, pick a password, and they are in. Nothing else to do on your end.</p>
             </form>
 
-            <div class="notice ad-manual" id="ad-manual" hidden></div>
+            <div class="notice od-manual" id="od-manual" hidden></div>
 
             <h2 class="ob-h" style="margin-top:44px"><span class="ob-h__n">02</span>Requests coming in</h2>
-            <div id="ad-requests"><p class="ob-loading">Loading requests...</p></div>
+            <div id="od-requests"><p class="ob-loading">Loading requests...</p></div>
 
             <h2 class="ob-h" style="margin-top:44px"><span class="ob-h__n">03</span>Who is on the network</h2>
-            <div id="ad-directory"><p class="ob-loading">Loading dealerships...</p></div>
+            <div id="od-directory"><p class="ob-loading">Loading dealerships...</p></div>
 
           </div>
         </div>
@@ -238,7 +238,7 @@
 
   <script src="assets/vendor/supabase/supabase.js" defer></script>
   <script src="js/portal-config.js?v=a8b7e9fa" defer></script>
-  <script src="js/dealer-admin.js?v=ad394161" defer></script>
+  <script src="js/dealer-admin.js?v=80062752" defer></script>
 
   </main>
 

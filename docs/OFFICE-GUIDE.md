@@ -123,6 +123,12 @@ gets loaded.
 
 ---
 
+## If a section of the page looks empty
+
+Ad blockers sometimes hide parts of a page they mistake for advertising. If a
+whole section is missing rather than just empty, try the page with the blocker
+turned off for this site, and say something so it can be fixed properly.
+
 ## When something looks wrong
 
 Nothing on this page deletes an order or a dealership, so there is no way to

@@ -12,7 +12,7 @@
   var configured = cfg.SUPABASE_URL && cfg.SUPABASE_URL.indexOf('http') === 0 &&
     cfg.SUPABASE_ANON_KEY && cfg.SUPABASE_ANON_KEY.indexOf('PASTE') !== 0;
 
-  var root = document.getElementById('ad-root');
+  var root = document.getElementById('od-root');
   if (!root) return;
 
   var notice = document.getElementById('portal-unconfigured');
@@ -123,7 +123,7 @@
 
   function loadDirectory() {
     return client.rpc('admin_directory').then(function (r) {
-      var wrap = el('ad-directory');
+      var wrap = el('od-directory');
       if (r.error) {
         wrap.innerHTML = '<p class="ob-empty">Could not load the dealer list (' +
           esc(r.error.message) + ').</p>';
@@ -133,7 +133,7 @@
       state.dealers = data.dealers || [];
       state.unlinked = data.unlinked || [];
 
-      var picker = el('ad-dealer');
+      var picker = el('od-dealer');
       var keep = picker.value;
       picker.innerHTML = dealerOptions(keep);
       toggleNewDealer();
@@ -141,16 +141,16 @@
       var html = '';
 
       if (state.unlinked.length) {
-        html += '<div class="ad-loose">' +
-          '<h3 class="ad-loose__title">Logins with no dealership yet</h3>' +
-          '<p class="ad-loose__note">These accounts exist but are not attached to a lot, so they cannot see pricing or order anything. Pick where each one belongs.</p>' +
+        html += '<div class="od-loose">' +
+          '<h3 class="od-loose__title">Logins with no dealership yet</h3>' +
+          '<p class="od-loose__note">These accounts exist but are not attached to a lot, so they cannot see pricing or order anything. Pick where each one belongs.</p>' +
           state.unlinked.map(function (u) {
-            return '<div class="ad-loose__row" data-email="' + esc(u.email) + '">' +
-              '<span class="ad-loose__who">' + esc(u.email) +
+            return '<div class="od-loose__row" data-email="' + esc(u.email) + '">' +
+              '<span class="od-loose__who">' + esc(u.email) +
               '<em>' + (u.signed_in ? 'has signed in' : 'invite not opened yet') + '</em></span>' +
-              '<select class="ad-loose__pick" aria-label="Dealership for ' + esc(u.email) + '">' +
+              '<select class="od-loose__pick" aria-label="Dealership for ' + esc(u.email) + '">' +
                 dealerOptions(null) + '</select>' +
-              '<button type="button" class="ad-mini ad-mini--go" data-attach>Attach</button>' +
+              '<button type="button" class="od-mini od-mini--go" data-attach>Attach</button>' +
               '</div>';
           }).join('') +
           '</div>';
@@ -159,33 +159,33 @@
       if (!state.dealers.length) {
         html += '<p class="ob-empty">No dealerships added yet. Use the form above and the first one gets created for you.</p>';
       } else {
-        html += '<div class="ad-dealers">' + state.dealers.map(function (d) {
+        html += '<div class="od-dealers">' + state.dealers.map(function (d) {
           var where = [d.city, d.state].filter(Boolean).join(', ');
           var logins = d.logins || [];
-          return '<article class="ad-dealer">' +
-            '<header class="ad-dealer__head">' +
-              '<div><h3 class="ad-dealer__name">' + esc(d.name) + '</h3>' +
-              '<p class="ad-dealer__meta">' +
+          return '<article class="od-dealer">' +
+            '<header class="od-dealer__head">' +
+              '<div><h3 class="od-dealer__name">' + esc(d.name) + '</h3>' +
+              '<p class="od-dealer__meta">' +
                 (where ? esc(where) : 'Town not on file') +
                 (d.phone ? ' &middot; ' + esc(d.phone) : '') +
                 ' &middot; ' + d.orders + (d.orders === 1 ? ' trailer order' : ' trailer orders') +
                 ' &middot; ' + d.parts + (d.parts === 1 ? ' parts request' : ' parts requests') +
               '</p></div>' +
-              '<button type="button" class="ad-mini" data-addlogin="' + esc(d.id) + '">Add a person</button>' +
+              '<button type="button" class="od-mini" data-addlogin="' + esc(d.id) + '">Add a person</button>' +
             '</header>' +
             (logins.length
-              ? '<ul class="ad-logins">' + logins.map(function (u) {
+              ? '<ul class="od-logins">' + logins.map(function (u) {
                   return '<li>' +
-                    '<span class="ad-login__who">' + esc(u.full_name || u.email) +
+                    '<span class="od-login__who">' + esc(u.full_name || u.email) +
                       (u.full_name ? '<em>' + esc(u.email) + '</em>' : '') + '</span>' +
-                    '<span class="ad-login__seen">' +
+                    '<span class="od-login__seen">' +
                       (u.signed_in ? 'last in ' + shortDate(u.last_seen) : 'invite not opened yet') +
                     '</span>' +
-                    '<button type="button" class="ad-mini ad-mini--off" data-unlink="' + esc(u.user_id) +
+                    '<button type="button" class="od-mini od-mini--off" data-unlink="' + esc(u.user_id) +
                       '" data-who="' + esc(u.email) + '">Remove access</button>' +
                     '</li>';
                 }).join('') + '</ul>'
-              : '<p class="ad-dealer__none">Nobody has a login here yet.</p>') +
+              : '<p class="od-dealer__none">Nobody has a login here yet.</p>') +
             '</article>';
         }).join('') + '</div>';
       }
@@ -196,15 +196,15 @@
   }
 
   function wireDirectory() {
-    var wrap = el('ad-directory');
+    var wrap = el('od-directory');
 
     wrap.querySelectorAll('[data-addlogin]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var picker = el('ad-dealer');
+        var picker = el('od-dealer');
         picker.value = btn.getAttribute('data-addlogin');
         toggleNewDealer();
-        el('ad-new').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(function () { el('ad-name').focus(); }, 350);
+        el('od-new').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () { el('od-name').focus(); }, 350);
       });
     });
 
@@ -229,8 +229,8 @@
 
     wrap.querySelectorAll('[data-attach]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var row = btn.closest('.ad-loose__row');
-        var dealerId = row.querySelector('.ad-loose__pick').value;
+        var row = btn.closest('.od-loose__row');
+        var dealerId = row.querySelector('.od-loose__pick').value;
         if (!dealerId) {
           window.alert('Pick which dealership this person belongs to first. To create a brand new dealership, use the form at the top of the page.');
           return;
@@ -258,7 +258,7 @@
 
   function loadRequests() {
     return client.rpc('admin_recent_requests', { p_limit: 30 }).then(function (r) {
-      var wrap = el('ad-requests');
+      var wrap = el('od-requests');
       if (r.error) {
         wrap.innerHTML = '<p class="ob-empty">Could not load requests (' + esc(r.error.message) + ').</p>';
         return;
@@ -268,44 +268,44 @@
         wrap.innerHTML = '<p class="ob-empty">Nothing has come in yet. Dealer requests land here the moment they are sent, and you get the email at the same time.</p>';
         return;
       }
-      wrap.innerHTML = '<div class="ad-reqs">' + rows.map(function (o) {
+      wrap.innerHTML = '<div class="od-reqs">' + rows.map(function (o) {
         var amount = o.kind === 'parts'
           ? 'Priced by the office'
           : (Number(o.total) === 0 && o.quote ? 'Factory quote'
              : money(o.total) + (o.quote ? ' plus quoted items' : ''));
-        return '<article class="ad-req" data-kind="' + esc(o.kind) + '" data-id="' + esc(o.id) + '">' +
-          '<div class="ad-req__id">' +
-            '<span class="ad-req__tag ad-req__tag--' + esc(o.kind) + '">' +
+        return '<article class="od-req" data-kind="' + esc(o.kind) + '" data-id="' + esc(o.id) + '">' +
+          '<div class="od-req__id">' +
+            '<span class="od-req__tag od-req__tag--' + esc(o.kind) + '">' +
               (o.kind === 'parts' ? 'Parts' : 'Trailer') + '</span>' +
             '<strong>' + esc(o.no) + '</strong>' +
-            '<span class="ad-req__when">' + shortDate(o.created_at) + '</span>' +
+            '<span class="od-req__when">' + shortDate(o.created_at) + '</span>' +
           '</div>' +
-          '<div class="ad-req__who">' +
+          '<div class="od-req__who">' +
             '<strong>' + esc(o.dealer) + '</strong>' +
             '<span>' + [o.contact, o.phone].filter(Boolean).map(esc).join(' &middot; ') + '</span>' +
           '</div>' +
-          '<div class="ad-req__what">' +
+          '<div class="od-req__what">' +
             '<span>' + o.items + (o.items === 1 ? ' line' : ' lines') + '</span>' +
             '<strong>' + esc(amount) + '</strong>' +
             (o.needed_by ? '<span>needed by ' + esc(plainDate(o.needed_by)) + '</span>' : '') +
             (o.po ? '<span>PO ' + esc(o.po) + '</span>' : '') +
           '</div>' +
-          '<div class="ad-req__set">' +
-            '<label class="ad-req__label" for="st-' + esc(o.id) + '">Where it stands</label>' +
+          '<div class="od-req__set">' +
+            '<label class="od-req__label" for="st-' + esc(o.id) + '">Where it stands</label>' +
             '<select id="st-' + esc(o.id) + '" data-status>' + statusOptions(o.kind, o.status) + '</select>' +
-            '<span class="ad-req__saved" aria-live="polite"></span>' +
+            '<span class="od-req__saved" aria-live="polite"></span>' +
           '</div>' +
-          (o.notes ? '<p class="ad-req__note"><strong>Their note:</strong> ' + esc(o.notes) + '</p>' : '') +
+          (o.notes ? '<p class="od-req__note"><strong>Their note:</strong> ' + esc(o.notes) + '</p>' : '') +
           '</article>';
       }).join('') + '</div>';
 
       wrap.querySelectorAll('[data-status]').forEach(function (sel) {
         sel.addEventListener('change', function () {
-          var card = sel.closest('.ad-req');
-          var saved = card.querySelector('.ad-req__saved');
+          var card = sel.closest('.od-req');
+          var saved = card.querySelector('.od-req__saved');
           sel.disabled = true;
           saved.textContent = 'Saving...';
-          saved.className = 'ad-req__saved';
+          saved.className = 'od-req__saved';
           client.rpc('admin_set_status', {
             p_kind: card.getAttribute('data-kind'),
             p_id: card.getAttribute('data-id'),
@@ -314,11 +314,11 @@
             sel.disabled = false;
             if (res.error) {
               saved.textContent = res.error.message;
-              saved.className = 'ad-req__saved is-bad';
+              saved.className = 'od-req__saved is-bad';
               return;
             }
             saved.textContent = 'Saved. The dealer sees this now.';
-            saved.className = 'ad-req__saved is-ok';
+            saved.className = 'od-req__saved is-ok';
             setTimeout(function () { saved.textContent = ''; }, 4000);
           });
         });
@@ -329,10 +329,10 @@
   /* --------------------------------------------------- setting a dealer up */
 
   function toggleNewDealer() {
-    var isNew = !el('ad-dealer').value;
-    var block = el('ad-newdealer');
+    var isNew = !el('od-dealer').value;
+    var block = el('od-newdealer');
     block.hidden = !isNew;
-    el('ad-dname').required = isNew;
+    el('od-dname').required = isNew;
   }
 
   /* The one job the browser cannot do alone. Creating a login needs the
@@ -359,24 +359,24 @@
 
   function showManual(email, dealerId, dealerName) {
     state.pending = { email: email, dealer_id: dealerId };
-    var box = el('ad-manual');
+    var box = el('od-manual');
     box.hidden = false;
     box.innerHTML =
       '<strong>Almost there. One step by hand this time.</strong>' +
       '<p>The invite button is not switched on for this project yet, so the email has to go out from Supabase. ' +
       (dealerName ? esc(dealerName) + ' is saved already, so you will not lose it.' : '') + '</p>' +
-      '<ol class="ad-manual__steps">' +
+      '<ol class="od-manual__steps">' +
         '<li>Open Supabase, go to <strong>Authentication</strong>, then <strong>Users</strong>.</li>' +
         '<li>Click <strong>Invite user</strong> and paste in <strong>' + esc(email) + '</strong>.</li>' +
         '<li>Come back here and click the button below.</li>' +
       '</ol>' +
-      '<button type="button" class="btn btn--red btn--sm" id="ad-finish">Finish setting up ' + esc(email) + '</button>' +
-      '<p class="ob-status" id="ad-manualstatus"></p>';
+      '<button type="button" class="btn btn--red btn--sm" id="od-finish">Finish setting up ' + esc(email) + '</button>' +
+      '<p class="ob-status" id="od-manualstatus"></p>';
 
-    el('ad-finish').addEventListener('click', function () {
-      var btn = el('ad-finish');
+    el('od-finish').addEventListener('click', function () {
+      var btn = el('od-finish');
       btn.disabled = true;
-      setStatus('ad-manualstatus', 'Attaching...');
+      setStatus('od-manualstatus', 'Attaching...');
       client.rpc('admin_link_login', {
         p_email: state.pending.email,
         p_dealer_id: state.pending.dealer_id,
@@ -384,40 +384,40 @@
       }).then(function (r) {
         btn.disabled = false;
         if (r.error) {
-          setStatus('ad-manualstatus', r.error.message, true);
+          setStatus('od-manualstatus', r.error.message, true);
           return;
         }
         box.hidden = true;
-        setStatus('ad-status', 'Done. ' + state.pending.email + ' is attached and can sign in.', false);
+        setStatus('od-status', 'Done. ' + state.pending.email + ' is attached and can sign in.', false);
         loadDirectory();
       });
     });
   }
 
   function wireForm() {
-    el('ad-dealer').addEventListener('change', toggleNewDealer);
+    el('od-dealer').addEventListener('change', toggleNewDealer);
     toggleNewDealer();
 
-    el('ad-new').addEventListener('submit', function (e) {
+    el('od-new').addEventListener('submit', function (e) {
       e.preventDefault();
-      var btn = el('ad-send');
-      var email = el('ad-email').value.trim().toLowerCase();
-      var fullName = el('ad-name').value.trim();
-      var dealerId = el('ad-dealer').value;
+      var btn = el('od-send');
+      var email = el('od-email').value.trim().toLowerCase();
+      var fullName = el('od-name').value.trim();
+      var dealerId = el('od-dealer').value;
       var dealer = {
-        name: el('ad-dname').value.trim(),
-        city: el('ad-dcity').value.trim(),
-        state: el('ad-dstate').value,
-        phone: el('ad-dphone').value.trim()
+        name: el('od-dname').value.trim(),
+        city: el('od-dcity').value.trim(),
+        state: el('od-dstate').value,
+        phone: el('od-dphone').value.trim()
       };
       if (!dealerId && !dealer.name) {
-        setStatus('ad-status', 'Give the dealership a name, or pick one from the list.', true);
+        setStatus('od-status', 'Give the dealership a name, or pick one from the list.', true);
         return;
       }
 
-      el('ad-manual').hidden = true;
+      el('od-manual').hidden = true;
       btn.disabled = true;
-      setStatus('ad-status', 'Setting them up...');
+      setStatus('od-status', 'Setting them up...');
 
       client.auth.getSession().then(function (s) {
         var token = s.data.session && s.data.session.access_token;
@@ -441,31 +441,31 @@
                 p_state: dealer.state, p_phone: dealer.phone, p_email: null, p_active: true
               });
           return Promise.resolve(save).then(function (r) {
-            if (r.error) { setStatus('ad-status', r.error.message, true); return; }
-            setStatus('ad-status', '');
+            if (r.error) { setStatus('od-status', r.error.message, true); return; }
+            setStatus('od-status', '');
             showManual(email, r.data, dealerId ? null : dealer.name);
             loadDirectory();
           });
         }
 
         if (!res.body || res.body.error) {
-          setStatus('ad-status', (res.body && res.body.error) ||
+          setStatus('od-status', (res.body && res.body.error) ||
             ('Something went wrong (' + res.status + '). Call the shop at ' + PHONE + ' if this keeps up.'), true);
           return;
         }
 
-        setStatus('ad-status', res.body.already_had_login
+        setStatus('od-status', res.body.already_had_login
           ? email + ' already had a login, so it is now attached to ' + (res.body.dealer || 'the dealership') + '. Nothing else to do.'
           : 'Sent. ' + email + ' has an email waiting with a button to set their password. They are attached to ' +
             (res.body.dealer || 'the dealership') + ' the moment they open it.', false);
 
-        el('ad-new').reset();
-        el('ad-dealer').value = '';
+        el('od-new').reset();
+        el('od-dealer').value = '';
         toggleNewDealer();
         loadDirectory();
       }).catch(function (err) {
         btn.disabled = false;
-        setStatus('ad-status', 'Could not reach Supabase (' + err.message + ').', true);
+        setStatus('od-status', 'Could not reach Supabase (' + err.message + ').', true);
       });
     });
   }
@@ -492,8 +492,8 @@
       }
       var link = el('portal-officelink');
       if (link) link.hidden = false;
-      el('ad-gate').hidden = true;
-      el('ad-body').hidden = false;
+      el('od-gate').hidden = true;
+      el('od-body').hidden = false;
       var dealerLine = el('portal-dealer');
       if (dealerLine) dealerLine.textContent = 'Triple R office';
       wireForm();
