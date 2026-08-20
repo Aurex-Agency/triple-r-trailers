@@ -1789,7 +1789,7 @@ a.tile { display: block; }
 
 /* step rail */
 .ob-steps {
-  position: relative; display: flex; flex-wrap: wrap; gap: 0;
+  position: relative; display: flex; flex-wrap: wrap; gap: 0; list-style: none;
   margin: 26px 0 34px; border: 1px solid var(--line); background: var(--coal-2);
 }
 .ob-step {
@@ -2054,4 +2054,59 @@ a.tile { display: block; }
   .ob-live { flex-direction: column; align-items: stretch; }
   .ob-live .btn { justify-content: center; }
   .portal-nav a { padding: 11px 13px; font-size: 13.5px; letter-spacing: 0.1em; }
+}
+
+/* ==========================================================================
+   Dealer parts requests
+   ========================================================================== */
+
+.pr-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 34px; margin-top: 32px; align-items: start; }
+.pr-main { min-width: 0; }
+
+.pr-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) 92px 34px;
+  gap: 12px; align-items: end;
+  padding: 14px; margin-bottom: 8px;
+  border: 1px solid var(--line); background: var(--coal-2);
+}
+.pr-row .ob-field { margin-bottom: 0; }
+.pr-row__x {
+  height: 44px; color: var(--steel); font-size: 21px; line-height: 1;
+  transition: color 0.2s ease;
+}
+.pr-row__x:hover { color: var(--red-bright); }
+
+.pr-add {
+  margin-top: 6px; padding: 11px 18px;
+  border: 1px dashed var(--line-strong); background: transparent;
+  font-family: var(--cond); font-weight: 700; font-size: 13.5px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone-dim);
+  transition: color 0.22s ease, border-color 0.22s ease;
+}
+.pr-add:hover { color: var(--bone); border-color: var(--bone-dim); }
+.pr-add::before { content: '+ '; color: var(--red-bright); }
+
+.pr-contact { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 16px; }
+.pr-main .btn { margin-top: 8px; }
+
+.pr-side { border: 1px solid var(--line); background: var(--coal-2); padding: 22px; }
+.pr-steps { margin-top: 16px; counter-reset: prstep; list-style: none; }
+.pr-steps li {
+  position: relative; counter-increment: prstep;
+  padding-left: 34px; margin-bottom: 16px;
+  font-size: 14.5px; color: var(--bone-dim); line-height: 1.6;
+}
+.pr-steps li strong { color: var(--bone); }
+.pr-steps li::before {
+  content: counter(prstep, decimal-leading-zero);
+  position: absolute; left: 0; top: 1px;
+  font-family: var(--cond); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.1em; color: var(--red);
+}
+
+@media (max-width: 1040px) { .pr-grid { grid-template-columns: 1fr; } }
+@media (max-width: 620px) {
+  .pr-row { grid-template-columns: 1fr 64px; gap: 10px 12px; }
+  .pr-row__desc, .pr-row__for { grid-column: 1 / -1; }
+  .pr-row__x { grid-column: 2; justify-self: end; }
 }

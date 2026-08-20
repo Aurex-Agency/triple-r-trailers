@@ -687,9 +687,60 @@
     ready: 'Ready', delivered: 'Delivered', cancelled: 'Cancelled'
   };
 
+  var PART_STATUS = {
+    submitted: 'With the parts desk', confirmed: 'Confirmed', shipped: 'Shipped',
+    ready: 'Ready for pickup', closed: 'Closed', cancelled: 'Cancelled'
+  };
+
+  /* Parts requests live in their own tables, so they load separately and
+     render under the trailer orders. */
+  function renderPartRequests() {
+    var wrap = el('rq-parts');
+    if (!wrap) return;
+    client.from('part_requests')
+      .select('id, req_no, created_at, status, po_number, needed_by, item_count, notes, part_request_items(*)')
+      .order('created_at', { ascending: false })
+      .then(function (r) {
+        if (r.error || !r.data || !r.data.length) {
+          wrap.innerHTML = '<h2 class="ob-h" style="margin-top:38px"><span class="ob-h__n">02</span>Parts requests</h2>' +
+            '<p class="ob-empty" style="text-align:left">No parts requests yet. ' +
+            '<a href="dealer-parts.html">Request parts</a>.</p>';
+          return;
+        }
+        wrap.innerHTML = '<h2 class="ob-h" style="margin-top:38px"><span class="ob-h__n">02</span>Parts requests</h2>' +
+          r.data.map(function (o) {
+            var items = (o.part_request_items || []).sort(function (a, b) { return a.sort - b.sort; });
+            return '<article class="rq">' +
+              '<header class="rq__head">' +
+                '<div><h3 class="rq__no">' + esc(o.req_no) + '</h3>' +
+                '<p class="rq__when">' + new Date(o.created_at).toLocaleDateString('en-US',
+                  { year: 'numeric', month: 'short', day: 'numeric' }) +
+                (o.po_number ? ' &middot; PO ' + esc(o.po_number) : '') +
+                (o.needed_by ? ' &middot; needed by ' + esc(o.needed_by) : '') + '</p></div>' +
+                '<span class="rq__status rq__status--' + esc(o.status) + '">' +
+                esc(PART_STATUS[o.status] || o.status) + '</span>' +
+              '</header>' +
+              '<ul class="rq__items">' + items.map(function (i) {
+                return '<li><span class="rq__qty">' + i.qty + ' x</span>' +
+                  '<span class="rq__name">' + esc(i.description) +
+                  (i.trailer_ref ? ' <em>for ' + esc(i.trailer_ref) + '</em>' : '') + '</span>' +
+                  '<span class="rq__amt">&nbsp;</span>' +
+                  (i.notes ? '<span class="rq__note">' + esc(i.notes) + '</span>' : '') +
+                  '</li>';
+              }).join('') + '</ul>' +
+              (o.notes ? '<p class="rq__ordernote"><strong>Your note:</strong> ' + esc(o.notes) + '</p>' : '') +
+              '<footer class="rq__foot"><span>' + o.item_count +
+              (o.item_count === 1 ? ' line' : ' lines') + '</span>' +
+              '<strong>Priced by the office</strong></footer>' +
+              '</article>';
+          }).join('');
+      });
+  }
+
   function renderRequests() {
     var wrap = el('rq-list');
     setBusy(wrap, 'Loading your requests...');
+    renderPartRequests();
     client.from('orders')
       .select('id, order_no, created_at, status, po_number, needed_by, item_count, subtotal, has_quote_items, notes, order_items(*)')
       .order('created_at', { ascending: false })

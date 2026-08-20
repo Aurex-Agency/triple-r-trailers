@@ -90,6 +90,17 @@ office. Nothing is charged. A request is a request until the office confirms it.
 
 Dealers now have Build an Order and My Requests in the portal.
 
+## 8b. Turn on parts requests (2 min)
+
+Parts have no published dealer price list, so the portal collects what the
+dealer needs and the office confirms the part and the price on the callback.
+
+1. **SQL Editor -> New query.** Paste `docs/supabase-parts.sql`, Run.
+2. That is all. A Parts tab appears in the portal for every dealer.
+
+Requests land under Table Editor -> `part_request_summary`, and they use the
+same email settings as trailer orders, so step 9 covers both.
+
 ## 9. Get the order emails (10 min)
 
 Without this the requests still save and dealers still see them; only the
@@ -115,7 +126,7 @@ get them. Replies go back to the dealer who sent the request.
 - New dealer approved -> invite the email (step 7), add the dealership (step 8.3),
   link them (step 8.4).
 - A request comes in -> it is emailed to you and listed under Table Editor ->
-  `order_summary`, newest first.
+  `order_summary` for trailers, `part_request_summary` for parts, newest first.
 - Moving a request along -> Table Editor -> `orders` -> change `status` to
   `confirmed`, `in_build`, `ready`, `delivered`, or `cancelled`. The dealer sees
   the new status on My Requests. Only staff can change it.
