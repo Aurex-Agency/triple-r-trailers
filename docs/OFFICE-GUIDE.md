@@ -58,6 +58,9 @@ If a whole dealership is out, remove every person listed under it.
 ## A request comes in
 
 You get an email the second a dealer sends one, with everything on it. The
+dealer gets their own copy at the same time, showing what they asked for at
+their pricing and saying you will call to confirm. If they reply to it, the
+reply comes to you. The
 same request is also listed on the Office page under **Requests coming in**,
 newest first, trailers and parts together.
 
