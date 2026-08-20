@@ -121,17 +121,57 @@ on conflict (key) do update set value = excluded.value;
 `order_email_to` takes a comma separated list if more than one person should
 get them. Replies go back to the dealer who sent the request.
 
+## 10. Turn on the office page (10 min)
+
+Steps 7, 8.3, and 8.4 are three screens in a dashboard and a user id copied by
+hand. That is not a job for an office. This replaces all of it with one page on
+the website: `dealer-admin.html`, visible only to staff.
+
+1. **SQL Editor -> New query.** Paste `docs/supabase-admin.sql`, Run.
+   It adds the office functions and tightens two rules: reading the catalog and
+   reading the documents now both require the login to be attached to a
+   dealership, so taking a dealer off actually cuts off dealer pricing.
+2. **Add yourself as staff** if you have not already: Table Editor ->
+   `staff_users` -> Insert row with your user id from Authentication -> Users.
+   Do this for the owner's login too. Everyone in `staff_users` sees the Office
+   tab in the portal; nobody else does.
+3. **Deploy the invite function.** Edge Functions -> Deploy a new function ->
+   via editor. Name it exactly `create-dealer-login` and paste in the whole of
+   `supabase/functions/create-dealer-login/index.ts`, then Deploy. No CLI, no
+   Docker, nothing to install. It is a separate piece because creating a login
+   needs the master key, and a master key can never sit in a web page.
+   `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are
+   already there for it; nothing to configure.
+4. **Send the invites through Resend** so they come from the verified domain
+   instead of Supabase's shared mailer, which is rate limited to a handful an
+   hour: Project Settings -> Authentication -> SMTP Settings -> Enable Custom
+   SMTP. Host `smtp.resend.com`, port `465`, user `resend`, password is a Resend
+   API key, sender `Triple R Trailers <orders@support.triplertrailers.com>`.
+
+If step 3 is skipped, the page still works: it saves the dealership, then tells
+the office to invite the email in the dashboard and click one button to finish.
+Steps 1 and 2 are the ones that matter.
+
+The office's own instructions are `docs/OFFICE-GUIDE.md`. It is written for
+somebody who has never seen a database and never needs to.
+
 ## Day-to-day for the office
 
-- New dealer approved -> invite the email (step 7), add the dealership (step 8.3),
-  link them (step 8.4).
-- A request comes in -> it is emailed to you and listed under Table Editor ->
-  `order_summary` for trailers, `part_request_summary` for parts, newest first.
-- Moving a request along -> Table Editor -> `orders` -> change `status` to
-  `confirmed`, `in_build`, `ready`, `delivered`, or `cancelled`. The dealer sees
-  the new status on My Requests. Only staff can change it.
+All of this is on the Office page now. See `docs/OFFICE-GUIDE.md`.
+
+- New dealer approved -> Office page, fill in the dealership and their email,
+  click Send them a login. The invite, the dealership, and the link between
+  them all happen in that one click.
+- A request comes in -> it is emailed to you and listed on the Office page,
+  trailers and parts together, newest first.
+- Moving a request along -> change the dropdown on the request. The dealer sees
+  it on My Requests. Only staff can change it.
+- Dealer leaves the network -> Remove access next to their name. They keep the
+  login and see nothing until they are attached again.
 - Price list changes -> see below.
-- Dealer leaves the network -> delete their user.
+
+The dashboard equivalents still work if you ever need them: `order_summary` and
+`part_request_summary` under Table Editor, and `orders`.`status` by hand.
 
 ## Updating prices
 

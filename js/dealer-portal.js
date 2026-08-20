@@ -83,6 +83,29 @@
       var who = document.getElementById('portal-user');
       if (who) who.textContent = session.user.email;
 
+      /* The Office tab is for Triple R staff. is_staff() answers false for
+         every dealer login, so for them the tab is never there at all. */
+      var officeLink = document.getElementById('portal-officelink');
+      if (officeLink) {
+        /* Cosmetic only, and never allowed to stop the page rendering. */
+        try {
+          client.rpc('is_staff').then(function (r) {
+            if (!r.error && r.data === true) officeLink.hidden = false;
+          }, function () {});
+        } catch (e) {}
+      }
+
+      /* Which dealership this login belongs to, shown under the email. */
+      client.from('dealer_members')
+        .select('dealers(name, city, state)')
+        .eq('user_id', session.user.id).maybeSingle()
+        .then(function (r) {
+          var line = document.getElementById('portal-dealer');
+          if (!line || !r.data || !r.data.dealers) return;
+          var d = r.data.dealers;
+          line.textContent = d.name + (d.city ? ', ' + d.city + ', ' + d.state : '');
+        });
+
       var signout = document.getElementById('portal-signout');
       if (signout) {
         signout.addEventListener('click', function () {

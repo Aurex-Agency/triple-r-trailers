@@ -81,11 +81,25 @@
     try { localStorage.setItem('trr-cart-pending', JSON.stringify(state.cart)); } catch (e) {}
   }
 
+  /* The Office tab is for Triple R staff. is_staff() answers false for every
+     dealer login, so for them the tab is never there at all. */
+  function revealOfficeTab() {
+    var link = el('portal-officelink');
+    if (!link) return;
+    /* Cosmetic only, and never allowed to stop the page rendering. */
+    try {
+      client.rpc('is_staff').then(function (r) {
+        if (!r.error && r.data === true) link.hidden = false;
+      }, function () {});
+    } catch (e) {}
+  }
+
   function requireSession() {
     return client.auth.getSession().then(function (res) {
       var session = res.data.session;
       if (!session) { window.location.href = 'dealer-login.html'; return null; }
       state.user = session.user;
+      revealOfficeTab();
       var who = el('portal-user');
       if (who) who.textContent = session.user.email;
       var out = el('portal-signout');

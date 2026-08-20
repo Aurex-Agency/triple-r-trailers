@@ -2,3 +2,5 @@
 # docs/ holds the Supabase schema and the DEALER NET price list seed.
 docs/
 README.md
+# supabase/ holds the edge function source. It runs on Supabase, not here.
+supabase/
