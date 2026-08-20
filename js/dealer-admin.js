@@ -15,11 +15,28 @@
   var root = document.getElementById('ad-root');
   if (!root) return;
 
+  var notice = document.getElementById('portal-unconfigured');
+
   if (!configured) {
-    var notice = document.getElementById('portal-unconfigured');
     if (notice) notice.style.display = '';
     var shell0 = document.getElementById('portal-shell');
     if (shell0) shell0.style.display = 'none';
+    return;
+  }
+
+  /* The Supabase library is vendored into assets/. If it ever fails to load,
+     this page would otherwise sit there looking normal and quietly do nothing,
+     which is how a broken deploy reads as "the login stopped working". Say so
+     instead. */
+  if (!window.supabase || !window.supabase.createClient) {
+    if (notice) {
+      notice.style.display = '';
+      notice.innerHTML = '<strong>The portal did not load properly.</strong> ' +
+        'Refresh the page. If it keeps happening, call the office at ' +
+        '<a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a>.';
+    }
+    var brokenShell = document.getElementById('portal-shell');
+    if (brokenShell) brokenShell.style.display = 'none';
     return;
   }
 

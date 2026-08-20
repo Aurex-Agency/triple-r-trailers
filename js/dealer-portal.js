@@ -22,6 +22,24 @@
     return;
   }
 
+  /* The Supabase library is vendored into assets/. If it ever fails to load,
+     this script would die here, the submit handler would never get attached,
+     and clicking Sign In would just reload the page with the fields wiped.
+     That reads exactly like a rejected password, so say what it really is. */
+  if (!window.supabase || !window.supabase.createClient) {
+    if (setupNotice) {
+      setupNotice.style.display = '';
+      setupNotice.innerHTML = '<strong>The portal did not load properly.</strong> ' +
+        'Refresh the page. If it keeps happening, call the office at ' +
+        '<a href="tel:+16627287975" style="color: var(--bone); font-weight:600;">(662) 728-7975</a>.';
+    }
+    if (loginForm) {
+      loginForm.addEventListener('submit', function (e) { e.preventDefault(); });
+      loginForm.style.display = 'none';
+    }
+    return;
+  }
+
   var client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 
   function setStatus(id, msg, ok) {

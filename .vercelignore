@@ -1,6 +1,11 @@
 # Never deploy these to the public web.
-# docs/ holds the Supabase schema and the DEALER NET price list seed.
-docs/
-README.md
-# supabase/ holds the edge function source. It runs on Supabase, not here.
-supabase/
+# Patterns follow .gitignore rules, which means an unanchored name matches a
+# directory at ANY depth. Anchor everything with a leading slash. Without it,
+# "supabase/" also matched assets/vendor/supabase/ and took the portal's
+# JavaScript library off the deployment, which broke every dealer login.
+#
+# /docs/ holds the Supabase schema and the DEALER NET price list seed.
+/docs/
+/README.md
+# /supabase/ holds the edge function source. It runs on Supabase, not here.
+/supabase/
