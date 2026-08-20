@@ -2113,133 +2113,138 @@ a.tile { display: block; }
 
 /* ==========================================================================
    The office desk (dealer-admin.html)
+
+   Prefixed "od-", never "ad-". EasyList carries generic rules for ###ad-new
+   and ##.ad-card, so an "ad-" prefix means every visitor running an ad blocker
+   silently loses the element. That is what happened to the Set up a dealer
+   form: the markup was there, the browser hid it before anyone saw it.
    ========================================================================== */
 
-.ad-card {
+.od-card {
   border: 1px solid var(--line); background: var(--coal-2);
   padding: 26px; margin-top: 26px;
 }
-.ad-fields {
+.od-fields {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 0 18px;
 }
-.ad-f--wide { grid-column: span 2; }
-.ad-f--state { max-width: 120px; }
-.ad-sub {
+.od-f--wide { grid-column: span 2; }
+.od-f--state { max-width: 120px; }
+.od-sub {
   border-left: 2px solid var(--red); padding-left: 18px; margin-bottom: 4px;
 }
-.ad-sub[hidden] { display: none; }
+.od-sub[hidden] { display: none; }
 
-.ad-manual { margin-top: 22px; }
-.ad-manual p { margin-top: 8px; }
-.ad-manual__steps {
+.od-manual { margin-top: 22px; }
+.od-manual p { margin-top: 8px; }
+.od-manual__steps {
   margin: 14px 0 18px; padding-left: 20px; list-style: decimal;
   font-size: 14.5px; color: var(--bone-dim); line-height: 1.9;
 }
-.ad-manual__steps strong { color: var(--bone); }
+.od-manual__steps strong { color: var(--bone); }
 
 /* ---- requests coming in ---- */
 
-.ad-reqs { display: grid; gap: 12px; margin-top: 24px; }
-.ad-req {
+.od-reqs { display: grid; gap: 12px; margin-top: 24px; }
+.od-req {
   display: grid; align-items: center; gap: 10px 20px;
   grid-template-columns: 190px minmax(0, 1fr) 190px 230px;
   border: 1px solid var(--line); background: var(--coal-2); padding: 16px 18px;
   transition: border-color 0.18s ease;
 }
-.ad-req:hover { border-color: var(--line-strong); }
-.ad-req__id { display: flex; flex-direction: column; gap: 4px; }
-.ad-req__tag {
+.od-req:hover { border-color: var(--line-strong); }
+.od-req__id { display: flex; flex-direction: column; gap: 4px; }
+.od-req__tag {
   align-self: flex-start; padding: 3px 8px;
   font-family: var(--cond); font-weight: 700; font-size: 11.5px;
   letter-spacing: 0.16em; text-transform: uppercase;
   border: 1px solid var(--line-strong); color: var(--bone-dim);
 }
-.ad-req__tag--trailer { background: var(--red); border-color: var(--red); color: #fff; }
-.ad-req__id strong {
+.od-req__tag--trailer { background: var(--red); border-color: var(--red); color: #fff; }
+.od-req__id strong {
   font-family: var(--cond); font-size: 19px; letter-spacing: 0.06em; color: var(--bone);
 }
-.ad-req__when { font-size: 12.5px; color: var(--steel); }
-.ad-req__who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.ad-req__who strong { font-size: 15.5px; color: var(--bone); }
-.ad-req__who span { font-size: 13px; color: var(--steel); }
-.ad-req__what { display: flex; flex-direction: column; gap: 3px; }
-.ad-req__what span { font-size: 12.5px; color: var(--steel); }
-.ad-req__what strong {
+.od-req__when { font-size: 12.5px; color: var(--steel); }
+.od-req__who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.od-req__who strong { font-size: 15.5px; color: var(--bone); }
+.od-req__who span { font-size: 13px; color: var(--steel); }
+.od-req__what { display: flex; flex-direction: column; gap: 3px; }
+.od-req__what span { font-size: 12.5px; color: var(--steel); }
+.od-req__what strong {
   font-family: var(--cond); font-size: 17px; letter-spacing: 0.04em; color: var(--bone);
 }
-.ad-req__set { display: flex; flex-direction: column; gap: 5px; }
-.ad-req__label {
+.od-req__set { display: flex; flex-direction: column; gap: 5px; }
+.od-req__label {
   font-family: var(--cond); font-weight: 700; font-size: 12px;
   letter-spacing: 0.16em; text-transform: uppercase; color: var(--steel);
 }
-.ad-req__set select {
+.od-req__set select {
   width: 100%; padding: 9px 11px; background: var(--ink); color: var(--bone);
   border: 1px solid var(--line-strong); font-family: var(--body); font-size: 14.5px;
 }
-.ad-req__set select:focus { outline: none; border-color: var(--red); }
-.ad-req__saved { min-height: 1.1em; font-size: 12.5px; color: var(--steel); }
-.ad-req__saved.is-ok { color: var(--bone-dim); }
-.ad-req__saved.is-bad { color: var(--red-bright); }
-.ad-req__note {
+.od-req__set select:focus { outline: none; border-color: var(--red); }
+.od-req__saved { min-height: 1.1em; font-size: 12.5px; color: var(--steel); }
+.od-req__saved.is-ok { color: var(--bone-dim); }
+.od-req__saved.is-bad { color: var(--red-bright); }
+.od-req__note {
   grid-column: 1 / -1; margin: 2px 0 0; padding-top: 12px;
   border-top: 1px solid var(--line); font-size: 13.5px; color: var(--bone-dim);
 }
-.ad-req__note strong { color: var(--bone); }
+.od-req__note strong { color: var(--bone); }
 
 /* ---- logins with nowhere to go ---- */
 
-.ad-loose {
+.od-loose {
   border: 1px solid var(--red); background: var(--coal-2);
   padding: 20px 22px; margin-top: 24px;
 }
-.ad-loose__title {
+.od-loose__title {
   font-family: var(--cond); font-weight: 700; font-size: 17px;
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone);
 }
-.ad-loose__note { margin-top: 7px; font-size: 14px; color: var(--bone-dim); line-height: 1.6; }
-.ad-loose__row {
+.od-loose__note { margin-top: 7px; font-size: 14px; color: var(--bone-dim); line-height: 1.6; }
+.od-loose__row {
   display: grid; grid-template-columns: minmax(0, 1fr) 240px auto;
   align-items: center; gap: 12px; margin-top: 14px;
   padding-top: 14px; border-top: 1px solid var(--line);
 }
-.ad-loose__who { display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: var(--bone); }
-.ad-loose__who em { font-style: normal; font-size: 12.5px; color: var(--steel); }
-.ad-loose__pick {
+.od-loose__who { display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: var(--bone); }
+.od-loose__who em { font-style: normal; font-size: 12.5px; color: var(--steel); }
+.od-loose__pick {
   padding: 9px 11px; background: var(--ink); color: var(--bone);
   border: 1px solid var(--line-strong); font-family: var(--body); font-size: 14px;
 }
-.ad-loose__pick:focus { outline: none; border-color: var(--red); }
+.od-loose__pick:focus { outline: none; border-color: var(--red); }
 
 /* ---- dealerships and who can sign in ---- */
 
-.ad-dealers { display: grid; gap: 12px; margin-top: 24px; }
-.ad-dealer {
+.od-dealers { display: grid; gap: 12px; margin-top: 24px; }
+.od-dealer {
   border: 1px solid var(--line); background: var(--coal-2); padding: 18px 20px;
   transition: border-color 0.18s ease;
 }
-.ad-dealer:hover { border-color: var(--line-strong); }
-.ad-dealer__head {
+.od-dealer:hover { border-color: var(--line-strong); }
+.od-dealer__head {
   display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
 }
-.ad-dealer__name {
+.od-dealer__name {
   font-family: var(--cond); font-weight: 700; font-size: 20px;
   letter-spacing: 0.05em; text-transform: uppercase; color: var(--bone);
 }
-.ad-dealer__meta { margin-top: 4px; font-size: 13px; color: var(--steel); }
-.ad-dealer__none { margin-top: 12px; font-size: 13.5px; color: var(--steel); }
-.ad-logins { margin-top: 14px; border-top: 1px solid var(--line); }
-.ad-logins li {
+.od-dealer__meta { margin-top: 4px; font-size: 13px; color: var(--steel); }
+.od-dealer__none { margin-top: 12px; font-size: 13.5px; color: var(--steel); }
+.od-logins { margin-top: 14px; border-top: 1px solid var(--line); }
+.od-logins li {
   display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center; gap: 14px;
   padding: 11px 0; border-bottom: 1px solid var(--line);
 }
-.ad-logins li:last-child { border-bottom: 0; padding-bottom: 0; }
-.ad-login__who { display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: var(--bone); }
-.ad-login__who em { font-style: normal; font-size: 12.5px; color: var(--steel); }
-.ad-login__seen { font-size: 12.5px; color: var(--steel); white-space: nowrap; }
+.od-logins li:last-child { border-bottom: 0; padding-bottom: 0; }
+.od-login__who { display: flex; flex-direction: column; gap: 2px; font-size: 15px; color: var(--bone); }
+.od-login__who em { font-style: normal; font-size: 12.5px; color: var(--steel); }
+.od-login__seen { font-size: 12.5px; color: var(--steel); white-space: nowrap; }
 
-.ad-mini {
+.od-mini {
   padding: 8px 13px; background: transparent; color: var(--bone-dim);
   border: 1px solid var(--line-strong); cursor: pointer;
   font-family: var(--cond); font-weight: 700; font-size: 12.5px;
@@ -2247,25 +2252,25 @@ a.tile { display: block; }
   transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
   white-space: nowrap;
 }
-.ad-mini:hover { color: var(--bone); border-color: var(--bone-dim); }
-.ad-mini:disabled { opacity: 0.5; cursor: default; }
-.ad-mini--off:hover { color: #fff; background: var(--red); border-color: var(--red); }
-.ad-mini--go { background: var(--red); border-color: var(--red); color: #fff; }
-.ad-mini--go:hover { background: var(--red-bright); border-color: var(--red-bright); color: #fff; }
+.od-mini:hover { color: var(--bone); border-color: var(--bone-dim); }
+.od-mini:disabled { opacity: 0.5; cursor: default; }
+.od-mini--off:hover { color: #fff; background: var(--red); border-color: var(--red); }
+.od-mini--go { background: var(--red); border-color: var(--red); color: #fff; }
+.od-mini--go:hover { background: var(--red-bright); border-color: var(--red-bright); color: #fff; }
 
 @media (max-width: 1040px) {
-  .ad-req { grid-template-columns: 170px minmax(0, 1fr); }
-  .ad-req__what, .ad-req__set { grid-column: span 1; }
+  .od-req { grid-template-columns: 170px minmax(0, 1fr); }
+  .od-req__what, .od-req__set { grid-column: span 1; }
 }
 @media (max-width: 620px) {
-  .ad-card { padding: 18px; }
-  .ad-fields { grid-template-columns: 1fr; }
-  .ad-f--wide { grid-column: span 1; }
-  .ad-f--state { max-width: none; }
-  .ad-req { grid-template-columns: 1fr; gap: 12px; }
-  .ad-loose__row { grid-template-columns: 1fr; }
-  .ad-loose__row .ad-mini { justify-self: start; }
-  .ad-dealer__head { flex-direction: column; gap: 12px; }
-  .ad-logins li { grid-template-columns: 1fr; gap: 6px; }
-  .ad-logins li .ad-mini { justify-self: start; margin-top: 4px; }
+  .od-card { padding: 18px; }
+  .od-fields { grid-template-columns: 1fr; }
+  .od-f--wide { grid-column: span 1; }
+  .od-f--state { max-width: none; }
+  .od-req { grid-template-columns: 1fr; gap: 12px; }
+  .od-loose__row { grid-template-columns: 1fr; }
+  .od-loose__row .od-mini { justify-self: start; }
+  .od-dealer__head { flex-direction: column; gap: 12px; }
+  .od-logins li { grid-template-columns: 1fr; gap: 6px; }
+  .od-logins li .od-mini { justify-self: start; margin-top: 4px; }
 }

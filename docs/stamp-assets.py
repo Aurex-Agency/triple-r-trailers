@@ -82,6 +82,41 @@ def excluded(rel, rules):
     return None
 
 
+# sanity: no class or id an ad blocker hides on sight.
+#
+# This exists because it already happened too. EasyList ships generic cosmetic
+# rules including "###ad-new" and "##.ad-card", so naming the office form
+# id="ad-new" class="ad-card" meant every visitor running uBlock, AdBlock Plus,
+# AdGuard, or Brave shields had it hidden before they ever saw it. The markup
+# was in the page and the server was fine; the browser removed it. Renaming the
+# prefix to "od-" fixed it. These are the prefixes those lists sweep for, so
+# nothing on this site may use them.
+BLOCKED_PREFIXES = ("ad-", "ads-", "advert", "banner-", "sponsor", "promo-",
+                    "popup-", "adbox", "adwrap", "ad_")
+
+names = {}
+for page in glob.glob(f"{REPO}/*.html"):
+    body = open(page, encoding="utf-8").read()
+    for attr in ("class", "id"):
+        for m in re.finditer(attr + r'="([^"]+)"', body):
+            for tok in m.group(1).split():
+                names.setdefault(tok, set()).add(os.path.basename(page))
+# Comments are stripped first, or the note above explaining the ad-blocker trap
+# would trip the check that the note is about.
+css_body = re.sub(r"/\*.*?\*/", " ", open(f"{REPO}/css/styles.css", encoding="utf-8").read(), flags=re.S)
+for m in re.finditer(r'[.#]([A-Za-z][A-Za-z0-9_-]*)', css_body):
+    names.setdefault(m.group(1), set())
+
+risky = sorted(n for n in names if n.lower().startswith(BLOCKED_PREFIXES))
+if risky:
+    print("\nNAMES AD BLOCKERS ARE LIKELY TO HIDE:")
+    for n in risky:
+        where = ", ".join(sorted(names[n])) or "css only"
+        print(f"   {n}  ({where})")
+    raise SystemExit("Rename these. An ad blocker will hide them and the page will look broken.")
+print(f"ad blocker check: {len(names)} class and id names, none using a blocked prefix")
+
+
 rules = ignore_rules(os.path.join(REPO, ".vercelignore"))
 refs = set()
 for page in glob.glob(f"{REPO}/*.html"):
