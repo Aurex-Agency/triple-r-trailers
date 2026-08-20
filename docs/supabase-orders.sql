@@ -195,7 +195,10 @@ alter table orders               enable row level security;
 alter table order_items          enable row level security;
 alter table order_events         enable row level security;
 
--- Catalog: readable by any signed-in dealer, writable by nobody through the API.
+-- Catalog: readable by a login attached to a dealership, and by office staff.
+-- A login with no dealership attached sees nothing, which is what makes taking
+-- a dealer off a dealership actually cut off dealer pricing. Writable by
+-- nobody through the API.
 do $$
 declare t text;
 begin
@@ -203,7 +206,8 @@ begin
                            'catalog_options', 'catalog_line_options']
   loop
     execute format('drop policy if exists "read catalog" on %I', t);
-    execute format('create policy "read catalog" on %I for select to authenticated using (true)', t);
+    execute format('create policy "read catalog" on %I for select to authenticated
+                    using (current_dealer_id() is not null or is_staff())', t);
   end loop;
 end $$;
 
