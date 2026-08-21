@@ -2383,3 +2383,21 @@ a.tile { display: block; }
 .footer__barlinks a { color: var(--bone-dim); text-decoration: none; transition: color 0.18s ease; }
 .footer__barlinks a:hover { color: var(--bone); }
 .footer__barlinks span { color: var(--steel-dim); margin: 0 4px; }
+
+/* Related guides, so the buying guides are not one click from nowhere */
+.readnext {
+  border-left: 3px solid var(--red); background: var(--coal-2);
+  padding: 24px 28px;
+}
+.readnext__title {
+  font-family: var(--cond); font-weight: 700; font-size: 19px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone);
+}
+.readnext__list { margin-top: 14px; display: grid; gap: 10px; }
+.readnext__list li { list-style: none; }
+.readnext__list a {
+  color: var(--bone-dim); text-decoration: none; font-size: 16px;
+  border-bottom: 1px solid transparent; transition: color 0.18s ease, border-color 0.18s ease;
+}
+.readnext__list a::before { content: '\2192'; color: var(--red-bright); margin-right: 10px; }
+.readnext__list a:hover { color: var(--bone); border-bottom-color: var(--red); }
