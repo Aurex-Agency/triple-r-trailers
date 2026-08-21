@@ -167,19 +167,30 @@ begin
            'Call them back on the number above.</p>' end ||
     '</div>';
 
-  perform net.http_post(
-    url     := 'https://api.resend.com/emails',
-    headers := jsonb_build_object('Content-Type', 'application/json',
-                                  'Authorization', 'Bearer ' || v_key),
-    body    := jsonb_build_object(
-                 'from', v_from,
-                 -- fixed, from settings. A visitor cannot redirect this.
-                 'to', string_to_array(v_to, ','),
-                 'reply_to', coalesce(v_email, split_part(v_to, ',', 1)),
-                 'subject', v_kind || ' from ' ||
-                            coalesce(nullif(trim(coalesce(v_name, '')), ''), 'the website'),
-                 'html', v_html));
+  -- A failing email must never cost the office the enquiry. Without this, an
+  -- exception here rolls the whole call back, the row above disappears with
+  -- it, and the person who filled the form gets an error instead of being
+  -- told somebody will call. The same guard is on submit_order().
+  begin
+    perform net.http_post(
+      url     := 'https://api.resend.com/emails',
+      headers := jsonb_build_object('Content-Type', 'application/json',
+                                    'Authorization', 'Bearer ' || v_key),
+      body    := jsonb_build_object(
+                   'from', v_from,
+                   -- fixed, from settings. A visitor cannot redirect this.
+                   'to', string_to_array(v_to, ','),
+                   'reply_to', coalesce(v_email, split_part(v_to, ',', 1)),
+                   'subject', v_kind || ' from ' ||
+                              coalesce(nullif(trim(coalesce(v_name, '')), ''), 'the website'),
+                   'html', v_html));
+  exception when others then
+    raise notice 'Enquiry saved, but the office email failed: %', sqlerrm;
+    return jsonb_build_object('ok', true, 'emailed', false);
+  end;
 
+  -- Queued with Resend. Whether Resend then accepted it shows up in
+  -- net._http_response, which is the place to look if one goes missing.
   update leads set emailed = true where id = v_lead.id;
   return jsonb_build_object('ok', true, 'emailed', true);
 end $$;
