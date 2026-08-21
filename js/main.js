@@ -181,19 +181,111 @@
     }, { once: true });
   });
 
-  /* ---------- Mail-backed forms ---------- */
+  /* ---------- Public forms ----------
+     These used to open the visitor's email app and wait for them to press send
+     themselves, which on a phone with no mail app set up did nothing at all
+     and lost the lead without anybody knowing. Now the submission goes to the
+     factory directly. If that call cannot be made, for any reason, the old
+     mail app route is still there as a fallback, so a lead is never dropped on
+     the floor. */
+  var LEAD_CFG = window.TRIPLE_R_PORTAL || {};
+  var LEAD_READY = LEAD_CFG.SUPABASE_URL && LEAD_CFG.SUPABASE_URL.indexOf('http') === 0 &&
+    LEAD_CFG.SUPABASE_ANON_KEY && LEAD_CFG.SUPABASE_ANON_KEY.indexOf('PASTE') !== 0;
+
+  function mailFallback(form, subject) {
+    var lines = [];
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (el.name && el.value && el.name !== 'company_website') {
+        lines.push(el.name + ': ' + el.value);
+      }
+    });
+    window.location.href = 'mailto:triplertrailers@gmail.com' +
+      '?subject=' + encodeURIComponent(subject + ' from triplertrailers.com') +
+      '&body=' + encodeURIComponent(lines.join('\n'));
+  }
+
+  function formNote(form) {
+    var note = form.querySelector('.form__note');
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'form__note';
+      form.appendChild(note);
+    }
+    return note;
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('form[data-mailform]'), function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var subject = form.getAttribute('data-mailform');
-      var lines = [];
+
+      if (!LEAD_READY) { mailFallback(form, subject); return; }
+
+      var fields = {};
+      var trap = '';
       Array.prototype.forEach.call(form.elements, function (el) {
-        if (el.name && el.value) lines.push(el.name + ': ' + el.value);
+        if (!el.name || !el.value) return;
+        if (el.name === 'company_website') { trap = el.value; return; }
+        fields[el.name] = el.value;
       });
-      var href = 'mailto:triplertrailers@gmail.com' +
-        '?subject=' + encodeURIComponent(subject + ' from triplertrailers.com') +
-        '&body=' + encodeURIComponent(lines.join('\n'));
-      window.location.href = href;
+
+      var btn = form.querySelector('button[type=submit]');
+      var note = formNote(form);
+      var oldLabel = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+      note.textContent = '';
+      note.style.color = '';
+
+      var done = false;
+      /* Never leave somebody staring at a spinner. If the network hangs, hand
+         them the mail app rather than nothing. */
+      var giveUp = setTimeout(function () {
+        if (done) return;
+        done = true;
+        if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
+        mailFallback(form, subject);
+      }, 12000);
+
+      fetch(LEAD_CFG.SUPABASE_URL + '/rest/v1/rpc/submit_lead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: LEAD_CFG.SUPABASE_ANON_KEY,
+          Authorization: 'Bearer ' + LEAD_CFG.SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({
+          payload: {
+            kind: subject,
+            page: window.location.pathname.replace(/^\//, ''),
+            company_website: trap,
+            fields: fields
+          }
+        })
+      }).then(function (res) {
+        return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+      }).then(function (r) {
+        if (done) return;
+        done = true;
+        clearTimeout(giveUp);
+        if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
+
+        if (!r.ok) {
+          note.textContent = (r.body && r.body.message) ||
+            'That did not go through. Call the office at (662) 728-7975.';
+          note.style.color = 'var(--red-bright)';
+          return;
+        }
+        form.reset();
+        note.textContent = 'Got it. That is on its way to Booneville and somebody will ' +
+          'get back to you. Need it sooner, call (662) 728-7975.';
+        note.style.color = 'var(--bone)';
+      }).catch(function () {
+        if (done) return;
+        done = true;
+        clearTimeout(giveUp);
+        if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
+        mailFallback(form, subject);
+      });
     });
   });
 

@@ -2274,3 +2274,10 @@ a.tile { display: block; }
   .od-logins li { grid-template-columns: 1fr; gap: 6px; }
   .od-logins li .od-mini { justify-self: start; margin-top: 4px; }
 }
+
+/* A field only a bot fills in. Kept out of sight and out of the tab order
+   rather than display:none, because some bots skip anything hidden that way. */
+.form__trap {
+  position: absolute; left: -9999px; top: auto;
+  width: 1px; height: 1px; overflow: hidden;
+}

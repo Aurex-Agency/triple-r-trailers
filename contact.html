@@ -16,7 +16,7 @@
   <link rel="preload" href="assets/fonts/ultra-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=b5416069">
+  <link rel="stylesheet" href="css/styles.css?v=899fde8a">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -165,6 +165,7 @@
             <p class="sechead__lede">The more you tell us about the load, the faster we can point you at the right trailer and the right dealer.</p>
           </header>
           <form class="form rev" data-mailform="Quote Request">
+            <div class="form__trap" aria-hidden="true"><label for="ct-hp">Company website</label><input id="ct-hp" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
             <div class="form__row">
               <div class="field"><label for="ct-name">Name</label><input id="ct-name" name="Name" type="text" required></div>
               <div class="field"><label for="ct-phone">Phone</label><input id="ct-phone" name="Phone" type="tel" required></div>
@@ -187,7 +188,7 @@
             </div>
             <div class="field"><label for="ct-msg">What do you need?</label><textarea id="ct-msg" name="Message" required placeholder="Size, load, timeline, your town. Whatever you know."></textarea></div>
             <button class="btn btn--red btn--lg" type="submit">Send It</button>
-            <p class="form__note">Submitting opens your email app with everything filled in and addressed to the factory.</p>
+            <p class="form__note">This goes straight to the factory in Booneville. Somebody gets back to you, usually the same day.</p>
           </form>
         </div>
         <aside class="split__aside rev">
@@ -289,6 +290,8 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=605f9bb5" defer></script>
+  <script src="js/portal-config.js?v=a8b7e9fa" defer></script>
+
+  <script src="js/main.js?v=db6ef477" defer></script>
 </body>
 </html>

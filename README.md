@@ -26,7 +26,7 @@ Hand-built static site. No frameworks, no build step. Deployable to any static h
 ## Before launch
 
 - Facebook page URL in the footer is still generic (facebook.com)
-- Forms open a prefilled email to triplertrailers@gmail.com; swap in a form service (Formspree, Netlify Forms, etc.) at launch for direct submissions
+- Public forms (Get a Quote, Become a Dealer, Parts Request, Request Access) post to `submit_lead()` in Supabase, which stores the enquiry in `leads` and emails the office through Resend (docs/supabase-leads.sql). The destination address is fixed in app_settings, so nothing a visitor types can redirect the mail. A honeypot field, a 45 second duplicate guard, and a 12 per minute cap keep bots off it. If the call fails or times out the page falls back to the old mailto route, so a lead is never silently dropped
 - Dealer map (Leaflet, self-hosted) is live on Find a Dealer with 49 of 58 locations pinned (city-level pins). Names, towns, and phones are checked against the official Triple R dealer sheet (August 2026); 9 dealers not on that sheet still need a town from the office before they can be pinned (see the bottom of `js/dealers.js`)
 - Map tiles come from openstreetmap.org; swap the tile URL in `js/dealer-map.js` to a keyed provider (MapTiler, Stadia) if traffic grows
 - Both sides get an email. The factory gets the request; the dealer gets their own copy with the request number, everything they specced at their pricing, and a link to My Requests (docs/supabase-dealer-receipt.sql). It hangs off the 'submitted' event row rather than editing submit_order(), fires once per request, and is wrapped so a failed send can never roll back a saved order. `dealer_receipt` in app_settings turns it off; `site_url` sets the link target

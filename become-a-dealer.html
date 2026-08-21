@@ -16,7 +16,7 @@
   <link rel="preload" href="assets/fonts/ultra-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=b5416069">
+  <link rel="stylesheet" href="css/styles.css?v=899fde8a">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -191,6 +191,7 @@
           <p class="sechead__lede">Fill this out and it goes straight to our office for review. We follow up on every application.</p>
         </header>
         <form class="form rev" data-mailform="Dealer Application">
+            <div class="form__trap" aria-hidden="true"><label for="bd-hp">Company website</label><input id="bd-hp" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
           <div class="form__row">
             <div class="field"><label for="da-business">Business name</label><input id="da-business" name="Business name" type="text" required></div>
             <div class="field"><label for="da-contact">Contact name</label><input id="da-contact" name="Contact name" type="text" required></div>
@@ -206,7 +207,7 @@
             <div class="field"><label for="da-volume">Expected volume</label><input id="da-volume" name="Expected volume" type="text" placeholder="Trailers per month or year"></div>
           </div>
           <button class="btn btn--red btn--lg" type="submit">Submit Application</button>
-          <p class="form__note">Submitting opens your email app with the application filled in and addressed to our office. Prefer the phone? Call (662) 728-7975.</p>
+          <p class="form__note">This goes straight to the office in Booneville. Prefer the phone? Call (662) 728-7975, Monday to Friday, 7:00 to 3:30.</p>
         </form>
       </div>
     </section>
@@ -321,6 +322,8 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=605f9bb5" defer></script>
+  <script src="js/portal-config.js?v=a8b7e9fa" defer></script>
+
+  <script src="js/main.js?v=db6ef477" defer></script>
 </body>
 </html>
