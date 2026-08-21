@@ -44,9 +44,12 @@ create table if not exists leads (
   fields     jsonb not null default '{}',
   page       text,
   emailed    boolean not null default false,
+  suspected_bot boolean not null default false,
   created_at timestamptz not null default now()
 );
 create index if not exists leads_created_idx on leads (created_at desc);
+-- for anyone whose table predates the column
+alter table leads add column if not exists suspected_bot boolean not null default false;
 
 alter table leads enable row level security;
 
@@ -78,13 +81,29 @@ declare
 begin
   v_kind := left(trim(coalesce(payload ->> 'kind', 'Website Enquiry')), 80);
   v_page := left(trim(coalesce(payload ->> 'page', '')), 120);
-  v_trap := trim(coalesce(payload ->> 'company_website', ''));
+  -- trr_hp is the honeypot. It used to be called company_website, and Chrome
+  -- maps both of those words to real profile fields, so a browser with a saved
+  -- profile filled it in on the visitor's behalf and their enquiry was thrown
+  -- away as spam. The name is deliberately meaningless now. The old name is
+  -- still read so a cached copy of the old page keeps working.
+  v_trap := trim(coalesce(payload ->> 'trr_hp', payload ->> 'company_website', ''));
   v_fields := coalesce(payload -> 'fields', '{}'::jsonb);
 
-  -- A real visitor never sees the honeypot field, so anything in it came from
-  -- a bot. Answer as if it worked and quietly drop it, rather than telling the
-  -- bot what gave it away.
+  -- A real visitor never sees the honeypot, so anything in it probably came
+  -- from a bot. Probably is not certainly, and the cost of being wrong is a
+  -- customer who believes they got in touch and never hears back. So it is
+  -- kept and flagged rather than destroyed: no email, kept out of the office's
+  -- working list, still there if it turns out to be real. The answer looks
+  -- like success so an actual bot learns nothing.
   if v_trap <> '' then
+    insert into leads (kind, name, email, phone, fields, page, suspected_bot)
+    values (v_kind,
+            left(coalesce(v_fields ->> 'Name', ''), 200),
+            left(coalesce(v_fields ->> 'Email', ''), 200),
+            left(coalesce(v_fields ->> 'Phone', ''), 60),
+            (select coalesce(jsonb_object_agg(left(k, 80), left(v, 4000)), '{}'::jsonb)
+               from jsonb_each_text(v_fields) as f(k, v) where trim(v) <> ''),
+            nullif(v_page, ''), true);
     return jsonb_build_object('ok', true);
   end if;
 
@@ -203,7 +222,22 @@ grant execute on function public.submit_lead(jsonb) to anon, authenticated;
 -- 3. For the office
 -- ===========================================================================
 
+-- What the office should act on.
 create or replace view lead_summary with (security_invoker = true) as
   select created_at, kind, name, phone, email, page, emailed, fields
     from leads
+   where not suspected_bot
    order by created_at desc;
+
+-- Everything the honeypot caught. Mostly bots, but worth a look now and then:
+-- a real person sitting in here means the trap is misfiring again.
+create or replace view lead_flagged with (security_invoker = true) as
+  select created_at, kind, name, phone, email, page, fields
+    from leads
+   where suspected_bot
+   order by created_at desc;
+
+-- security_invoker means row level security still applies through these, so a
+-- dealer reading them sees nothing and only staff see rows. Granted explicitly
+-- rather than relying on the project's default privileges.
+grant select on lead_summary, lead_flagged to authenticated;
