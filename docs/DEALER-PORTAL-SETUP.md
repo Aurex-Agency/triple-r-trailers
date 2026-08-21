@@ -114,12 +114,41 @@ email is skipped. Check `order_summary` in the dashboard either way.
 insert into app_settings (key, value) values
   ('resend_api_key',   're_your_key_here'),
   ('order_email_to',   'triplertrailers@gmail.com'),
-  ('order_email_from', 'Triple R Portal <orders@triplertrailers.com>')
+  ('order_email_from', 'Triple R Trailers <orders@support.triplertrailers.com>')
 on conflict (key) do update set value = excluded.value;
 ```
 
 `order_email_to` takes a comma separated list if more than one person should
 get them. Replies go back to the dealer who sent the request.
+
+**The sending domain is `support.triplertrailers.com` and that is deliberate.**
+It is the domain verified in Resend, it is a subdomain of the real domain, and
+it delivers. Do not "tidy" it to `orders@triplertrailers.com` unless that
+domain has been verified in Resend first, or every email silently starts coming
+back 403.
+
+Two things worth knowing when an email seems to have vanished:
+
+- Every one of these goes to `order_email_to`, which is the office. There is no
+  copy to the person who filled in a public form, on purpose, because sending
+  mail to whatever address a stranger types is how a contact form becomes a
+  spam relay. Check the office mailbox, not your own.
+- Resend keys come in two kinds. A **Sending access** key can send but answers
+  401 "This API key is restricted to only send" to any question about the
+  account, so the diagnostic queries below will not work with one. A **Full
+  access** key on the same account and the same domain makes them work, and
+  changes nothing about where mail comes from.
+
+To see what actually happened to a send:
+
+```sql
+select id, status_code, error_msg, left(content, 300) as response, created
+  from net._http_response order by id desc limit 5;
+```
+
+200 with an id means Resend accepted it. 401 means the key is wrong or revoked.
+403 means the from address is not verified on that key's account. No row at all
+means pg_net never fired.
 
 ## 10. Turn on the office page (10 min)
 
