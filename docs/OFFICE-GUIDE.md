@@ -68,6 +68,28 @@ Each one has a box on the right that says **Where it stands**. Change it and
 the dealer sees the new answer on their own My Requests page. That is the whole
 point of it: they stop calling to ask.
 
+**The list only shows what you still have to deal with.** Across the top:
+
+| Tab | What is in it |
+| --- | --- |
+| Needs a call | Came in, nobody has picked it up yet. This is what opens by default |
+| In progress | Confirmed, in the shop, ready, shipped |
+| Finished | Delivered, done, cancelled |
+| Everything | All of it |
+
+The number beside each tab is how many are in it. Move a request along and it
+drops out of Needs a call on its own, so that tab empties as you work through
+the day. It does not matter how many hundreds pile up over a year; the tab you
+open on only ever shows what is waiting.
+
+The box on the right searches all of them at once. Type a request number, a
+dealership, or the name of whoever sent it, and it finds it wherever it is.
+Useful when a dealer rings up about one from three months ago. Clear the box to
+go back to the normal list.
+
+Long lists load twenty five at a time with a **Show more** button at the
+bottom, so the page never takes a minute to open.
+
 For trailer orders:
 
 | Pick this | It means |
