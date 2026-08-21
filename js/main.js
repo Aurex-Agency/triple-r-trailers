@@ -270,9 +270,16 @@
         if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
 
         if (!r.ok) {
-          note.textContent = (r.body && r.body.message) ||
-            'That did not go through. Call the office at (662) 728-7975.';
-          note.style.color = 'var(--red-bright)';
+          /* P0001 is our own message, written for the visitor, so show it.
+             Anything else is the database or the connection having a problem,
+             and a visitor should never be shown that. Hand them the mail app
+             instead, which is the whole reason the fallback exists. */
+          if (r.body && r.body.code === 'P0001' && r.body.message) {
+            note.textContent = r.body.message;
+            note.style.color = 'var(--red-bright)';
+          } else {
+            mailFallback(form, subject);
+          }
           return;
         }
         form.reset();
