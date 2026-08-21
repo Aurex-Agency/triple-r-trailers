@@ -2327,3 +2327,49 @@ a.tile { display: block; }
   .od-search { max-width: none; }
   .od-tab { flex: 1 1 auto; justify-content: center; }
 }
+
+/* ==========================================================================
+   Reviews: the footer link on every page, and the block on Contact and About
+   ========================================================================== */
+
+.footer__review {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 12px;
+  padding: 9px 14px; border: 1px solid var(--red);
+  color: var(--bone); text-decoration: none;
+  font-family: var(--cond); font-weight: 700; font-size: 13.5px;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.footer__review:hover { background: var(--red); border-color: var(--red); color: #fff; }
+.footer__review .footer__stars { color: var(--red-bright); flex: 0 0 auto; }
+.footer__review:hover .footer__stars { color: #fff; }
+
+.reviewcta {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: 26px;
+  border: 1px solid var(--line-strong); background: var(--coal-2);
+  padding: 30px 34px; position: relative; overflow: hidden;
+}
+.reviewcta::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--red);
+}
+.reviewcta__stars { display: flex; gap: 4px; color: var(--red-bright); }
+.reviewcta__title {
+  font-family: var(--cond); font-weight: 700; font-size: 27px;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--bone);
+}
+.reviewcta__sub { margin-top: 8px; font-size: 15.5px; color: var(--bone-dim); line-height: 1.6; max-width: 62ch; }
+.reviewcta__actions { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.reviewcta__map {
+  text-align: center; font-family: var(--cond); font-weight: 700; font-size: 12.5px;
+  letter-spacing: 0.13em; text-transform: uppercase; color: var(--steel);
+  text-decoration: none; transition: color 0.18s ease;
+}
+.reviewcta__map:hover { color: var(--bone); }
+
+@media (max-width: 900px) {
+  .reviewcta { grid-template-columns: 1fr; gap: 18px; padding: 26px 22px; text-align: left; }
+  .reviewcta__actions { align-items: stretch; }
+  .reviewcta__actions .btn { justify-content: center; }
+}
