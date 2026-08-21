@@ -44,14 +44,22 @@ put in their email, and click **Email me a sign-in link**.
 
 ## Somebody is out
 
-Find their dealership under **Who is on the network** and click
-**Remove access** next to their name.
+Find their dealership under **Who is on the network** and click **Remove**
+next to their name.
 
-They are cut off the moment you click it. No pricing, no documents, no
-ordering. Their login still exists, so if they come back you can put them
-right back on with **Add a person**. Nothing is lost either way.
+They are gone the moment you click it. Their login is deleted and they cannot
+sign in again.
+
+**Nothing you care about is lost.** Every order and parts request they ever
+sent stays on the dealership, with the name and phone number they gave at the
+time. You are only removing the ability to sign in. If they come back, click
+**Add a person** and they get a fresh invite.
 
 If a whole dealership is out, remove every person listed under it.
+
+**Office logins are different.** The page will not let you remove yourself or
+anybody else in the office. That is on purpose, so a wrong click cannot lock
+Triple R out of its own page. Those are removed in Supabase.
 
 ---
 
@@ -67,6 +75,28 @@ newest first, trailers and parts together.
 Each one has a box on the right that says **Where it stands**. Change it and
 the dealer sees the new answer on their own My Requests page. That is the whole
 point of it: they stop calling to ask.
+
+**The list only shows what you still have to deal with.** Across the top:
+
+| Tab | What is in it |
+| --- | --- |
+| Needs a call | Came in, nobody has picked it up yet. This is what opens by default |
+| In progress | Confirmed, in the shop, ready, shipped |
+| Finished | Delivered, done, cancelled |
+| Everything | All of it |
+
+The number beside each tab is how many are in it. Move a request along and it
+drops out of Needs a call on its own, so that tab empties as you work through
+the day. It does not matter how many hundreds pile up over a year; the tab you
+open on only ever shows what is waiting.
+
+The box on the right searches all of them at once. Type a request number, a
+dealership, or the name of whoever sent it, and it finds it wherever it is.
+Useful when a dealer rings up about one from three months ago. Clear the box to
+go back to the normal list.
+
+Long lists load twenty five at a time with a **Show more** button at the
+bottom, so the page never takes a minute to open.
 
 For trailer orders:
 
@@ -96,6 +126,10 @@ login gets made in the Supabase dashboard instead of on the Office page.
 Those show up in a red box near the bottom called **Logins with no dealership
 yet**. Pick the right dealership beside their email and click **Attach**. They
 are in.
+
+If one of them should not exist at all, **Remove** clears it out. The red box
+is there to tell you something needs doing, so once it is empty it disappears
+and the page goes quiet again.
 
 ---
 

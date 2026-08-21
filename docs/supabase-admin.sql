@@ -206,8 +206,46 @@ begin
   return jsonb_build_object('user_id', v_user, 'email', lower(trim(p_email)), 'dealer', v_dealer);
 end $$;
 
--- Takes a login off a dealership. The account still exists, it just has
--- nothing to see: no pricing, no documents, no ordering. Reattach any time.
+-- Deletes a login outright. This is what Remove on the office page does.
+--
+-- Unlinking used to be the only option, which left the account sitting in the
+-- "no dealership yet" box forever. That box is meant to say something needs
+-- doing, so filling it with people who were removed on purpose made the page
+-- busier every time the office tidied up, which is backwards.
+--
+-- Deleting costs nothing. Orders and parts requests hang off the dealership,
+-- not the person, and the contact name, phone and email are copied onto each
+-- request when it is sent. So the history stays exactly as it was; only the
+-- ability to sign in goes. If they come back, add them again on the same page.
+create or replace function public.admin_delete_login(p_user_id uuid)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_email text;
+begin
+  if not is_staff() then
+    raise exception 'This page is for Triple R office staff only.' using errcode = '42501';
+  end if;
+  if p_user_id = auth.uid() then
+    raise exception 'That is your own login. You cannot remove yourself.';
+  end if;
+  if exists (select 1 from staff_users where user_id = p_user_id) then
+    raise exception 'That is an office login. Office logins are removed in Supabase, on purpose, so this page cannot lock the office out of itself.';
+  end if;
+
+  select email into v_email from auth.users where id = p_user_id;
+  if v_email is null then
+    raise exception 'That login is already gone.';
+  end if;
+
+  -- dealer_members goes with it; orders keep their history with submitted_by
+  -- set to null, which is what the column was defined for.
+  delete from auth.users where id = p_user_id;
+
+  return jsonb_build_object('email', v_email);
+end $$;
+
+-- Kept for anything that still wants to detach without deleting. The office
+-- page no longer uses it.
 create or replace function public.admin_unlink_login(p_user_id uuid)
 returns void
 language plpgsql security definer set search_path = public as $$
@@ -222,43 +260,107 @@ end $$;
 -- 5. Requests
 -- ===========================================================================
 
-create or replace function public.admin_recent_requests(p_limit int default 30)
+-- The office list is not an archive. What matters is what has not been dealt
+-- with yet, so the default view is only that, and everything else is a click
+-- away. Without this the page becomes a wall of old orders within a season.
+--
+--   new     just came in, nobody has picked it up
+--   working confirmed, in the shop, ready, shipped
+--   done    delivered, closed, cancelled
+--   all     everything
+--
+-- p_search matches a request number or a dealership name, so the office can
+-- find one they were called about without scrolling.
+
+drop function if exists public.admin_recent_requests(int);
+
+create or replace function public.admin_request_counts()
 returns jsonb
 language plpgsql security definer set search_path = public as $$
-declare v_out jsonb; v_lim int := least(greatest(coalesce(p_limit, 30), 1), 200);
+declare v_out jsonb;
 begin
   if not is_staff() then
     raise exception 'This page is for Triple R office staff only.' using errcode = '42501';
   end if;
 
-  with trailers as (
-    select jsonb_build_object(
-             'kind', 'trailer', 'id', o.id, 'no', o.order_no, 'created_at', o.created_at,
-             'status', o.status, 'dealer', d.name, 'city', d.city, 'state', d.state,
-             'contact', o.contact_name, 'phone', o.contact_phone, 'email', o.contact_email,
-             'po', o.po_number, 'needed_by', o.needed_by, 'items', o.item_count,
-             'total', o.subtotal, 'quote', o.has_quote_items, 'notes', o.notes) as j,
-           o.created_at
-      from orders o join dealers d on d.id = o.dealer_id
-     order by o.created_at desc
-     limit v_lim
-  ), parts as (
-    select jsonb_build_object(
-             'kind', 'parts', 'id', p.id, 'no', p.req_no, 'created_at', p.created_at,
-             'status', p.status, 'dealer', d.name, 'city', d.city, 'state', d.state,
-             'contact', p.contact_name, 'phone', p.contact_phone, 'email', p.contact_email,
-             'po', p.po_number, 'needed_by', p.needed_by, 'items', p.item_count,
-             'total', null, 'quote', false, 'notes', p.notes) as j,
-           p.created_at
-      from part_requests p join dealers d on d.id = p.dealer_id
-     order by p.created_at desc
-     limit v_lim
+  with every as (
+    select status from orders
+    union all
+    select status from part_requests
   )
-  select coalesce(jsonb_agg(j order by created_at desc), '[]'::jsonb)
-    into v_out
-    from (select j, created_at from trailers
-          union all
-          select j, created_at from parts) both_kinds;
+  select jsonb_build_object(
+           'new',     count(*) filter (where status = 'submitted'),
+           'working', count(*) filter (where status in ('confirmed', 'in_build', 'ready', 'shipped')),
+           'done',    count(*) filter (where status in ('delivered', 'closed', 'cancelled')),
+           'all',     count(*))
+    into v_out from every;
+
+  return v_out;
+end $$;
+
+create or replace function public.admin_recent_requests(
+  p_bucket text default 'new',
+  p_search text default null,
+  p_limit  int  default 25,
+  p_offset int  default 0)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_out jsonb;
+  v_lim int := least(greatest(coalesce(p_limit, 25), 1), 200);
+  v_off int := greatest(coalesce(p_offset, 0), 0);
+  v_q text := nullif(trim(coalesce(p_search, '')), '');
+  v_bucket text := lower(coalesce(p_bucket, 'new'));
+begin
+  if not is_staff() then
+    raise exception 'This page is for Triple R office staff only.' using errcode = '42501';
+  end if;
+  if v_bucket not in ('new', 'working', 'done', 'all') then
+    v_bucket := 'new';
+  end if;
+
+  with everything as (
+    select o.id, o.order_no as no, o.created_at, o.status, d.name as dealer,
+           'trailer' as kind, d.city, d.state, o.contact_name, o.contact_phone,
+           o.contact_email, o.po_number, o.needed_by, o.item_count,
+           o.subtotal as total, o.has_quote_items as quote, o.notes
+      from orders o join dealers d on d.id = o.dealer_id
+    union all
+    select p.id, p.req_no, p.created_at, p.status, d.name,
+           'parts', d.city, d.state, p.contact_name, p.contact_phone,
+           p.contact_email, p.po_number, p.needed_by, p.item_count,
+           null::numeric, false, p.notes
+      from part_requests p join dealers d on d.id = p.dealer_id
+  ), matching as (
+    select * from everything
+     where (v_bucket = 'all'
+            or (v_bucket = 'new'     and status = 'submitted')
+            or (v_bucket = 'working' and status in ('confirmed', 'in_build', 'ready', 'shipped'))
+            or (v_bucket = 'done'    and status in ('delivered', 'closed', 'cancelled')))
+       and (v_q is null
+            or no ilike '%' || v_q || '%'
+            or dealer ilike '%' || v_q || '%'
+            or coalesce(contact_name, '') ilike '%' || v_q || '%')
+  ), picked as (
+    select * from matching order by created_at desc limit v_lim offset v_off
+  )
+  select jsonb_build_object(
+           'bucket', v_bucket,
+           'offset', v_off,
+           'total',  (select count(*) from matching),
+           -- Counted rather than guessed from a full page, so an exact
+           -- multiple of the page size does not offer a Show more that
+           -- turns out to be empty.
+           'more',   (select count(*) from matching) > v_off + (select count(*) from picked),
+           'rows', coalesce((
+             select jsonb_agg(jsonb_build_object(
+                      'kind', kind, 'id', id, 'no', no, 'created_at', created_at,
+                      'status', status, 'dealer', dealer, 'city', city, 'state', state,
+                      'contact', contact_name, 'phone', contact_phone, 'email', contact_email,
+                      'po', po_number, 'needed_by', needed_by, 'items', item_count,
+                      'total', total, 'quote', quote, 'notes', notes) order by created_at desc)
+               from picked), '[]'::jsonb))
+    into v_out;
 
   return v_out;
 end $$;
@@ -315,7 +417,9 @@ begin
     'admin_save_dealer(uuid, text, text, text, text, text, boolean)',
     'admin_link_login(text, uuid, text)',
     'admin_unlink_login(uuid)',
-    'admin_recent_requests(int)',
+    'admin_delete_login(uuid)',
+    'admin_request_counts()',
+    'admin_recent_requests(text, text, int, int)',
     'admin_set_status(text, uuid, text)']
   loop
     execute format('revoke all on function public.%s from public, anon', f);

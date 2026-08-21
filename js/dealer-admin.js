@@ -80,7 +80,19 @@
     node.className = bad ? 'ob-status is-bad' : 'ob-status';
   }
 
-  var state = { dealers: [], unlinked: [], pending: null };
+  var state = {
+    dealers: [], unlinked: [], pending: null,
+    /* The list is not an archive. It opens on what has not been dealt with,
+       because that is the only part anyone has to act on. */
+    bucket: 'new', search: '', offset: 0, rows: [], more: false, counts: null
+  };
+
+  var BUCKETS = [
+    ['new', 'Needs a call'],
+    ['working', 'In progress'],
+    ['done', 'Finished'],
+    ['all', 'Everything']
+  ];
 
   /* -------------------------------------------------- what a status means */
 
@@ -143,7 +155,7 @@
       if (state.unlinked.length) {
         html += '<div class="od-loose">' +
           '<h3 class="od-loose__title">Logins with no dealership yet</h3>' +
-          '<p class="od-loose__note">These accounts exist but are not attached to a lot, so they cannot see pricing or order anything. Pick where each one belongs.</p>' +
+          '<p class="od-loose__note">These accounts can sign in but are not attached to a lot, so they see no pricing and cannot order. Put each one where it belongs, or remove it.</p>' +
           state.unlinked.map(function (u) {
             return '<div class="od-loose__row" data-email="' + esc(u.email) + '">' +
               '<span class="od-loose__who">' + esc(u.email) +
@@ -151,6 +163,8 @@
               '<select class="od-loose__pick" aria-label="Dealership for ' + esc(u.email) + '">' +
                 dealerOptions(null) + '</select>' +
               '<button type="button" class="od-mini od-mini--go" data-attach>Attach</button>' +
+              '<button type="button" class="od-mini od-mini--off" data-remove="' + esc(u.user_id) +
+                '" data-who="' + esc(u.email) + '">Remove</button>' +
               '</div>';
           }).join('') +
           '</div>';
@@ -181,8 +195,8 @@
                     '<span class="od-login__seen">' +
                       (u.signed_in ? 'last in ' + shortDate(u.last_seen) : 'invite not opened yet') +
                     '</span>' +
-                    '<button type="button" class="od-mini od-mini--off" data-unlink="' + esc(u.user_id) +
-                      '" data-who="' + esc(u.email) + '">Remove access</button>' +
+                    '<button type="button" class="od-mini od-mini--off" data-remove="' + esc(u.user_id) +
+                      '" data-who="' + esc(u.email) + '">Remove</button>' +
                     '</li>';
                 }).join('') + '</ul>'
               : '<p class="od-dealer__none">Nobody has a login here yet.</p>') +
@@ -208,18 +222,24 @@
       });
     });
 
-    wrap.querySelectorAll('[data-unlink]').forEach(function (btn) {
+    /* Remove means gone. Leaving them attached to nothing just moved the
+       clutter into the red box above, which is supposed to mean something
+       needs doing. */
+    wrap.querySelectorAll('[data-remove]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var who = btn.getAttribute('data-who');
-        if (!window.confirm('Take away ' + who + '\'s access?\n\nThey keep their login but see no pricing, no documents, and cannot order until you attach them again.')) return;
+        if (!window.confirm('Remove ' + who + '?\n\nTheir login is deleted and they cannot sign in again. ' +
+              'Everything they have ordered stays on the dealership, so nothing is lost. ' +
+              'If they come back, add them again on this page.')) return;
+        var label = btn.textContent;
         btn.disabled = true;
         btn.textContent = 'Removing...';
-        client.rpc('admin_unlink_login', { p_user_id: btn.getAttribute('data-unlink') })
+        client.rpc('admin_delete_login', { p_user_id: btn.getAttribute('data-remove') })
           .then(function (r) {
             if (r.error) {
               btn.disabled = false;
-              btn.textContent = 'Remove access';
-              window.alert('Could not remove that: ' + r.error.message);
+              btn.textContent = label;
+              window.alert(r.error.message);
               return;
             }
             loadDirectory();
@@ -256,16 +276,86 @@
 
   /* ----------------------------------------------------------- the requests */
 
-  function loadRequests() {
-    return client.rpc('admin_recent_requests', { p_limit: 30 }).then(function (r) {
+  function renderTabs() {
+    var tabs = el('od-tabs');
+    if (!tabs || !state.counts) return;
+    tabs.innerHTML = BUCKETS.map(function (b) {
+      var n = state.counts[b[0]];
+      return '<button type="button" class="od-tab' + (state.bucket === b[0] ? ' is-on' : '') +
+        '" data-bucket="' + b[0] + '" aria-pressed="' + (state.bucket === b[0]) + '">' +
+        esc(b[1]) + '<span class="od-tab__n">' + (n === undefined ? '' : n) + '</span></button>';
+    }).join('');
+    tabs.querySelectorAll('[data-bucket]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.bucket === btn.getAttribute('data-bucket')) return;
+        state.bucket = btn.getAttribute('data-bucket');
+        state.offset = 0;
+        loadRequests();
+      });
+    });
+  }
+
+  function emptyMessage() {
+    if (state.search) {
+      return 'Nothing matches "' + esc(state.search) + '". Try part of a request number, ' +
+             'a dealership, or the name of whoever sent it.';
+    }
+    if (state.bucket === 'new') {
+      return 'Nothing waiting. Everything that has come in has been picked up. ' +
+             'New requests land here the moment a dealer sends one, and you get the email at the same time.';
+    }
+    if (state.bucket === 'working') return 'Nothing in progress right now.';
+    if (state.bucket === 'done') return 'Nothing finished yet.';
+    return 'Nothing has come in yet. Dealer requests land here the moment they are sent, ' +
+           'and you get the email at the same time.';
+  }
+
+  function renderMore() {
+    var wrap = el('od-more');
+    if (!wrap) return;
+    if (!state.more) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = '<button type="button" class="od-loadmore" id="od-loadmore">Show more</button>';
+    el('od-loadmore').addEventListener('click', function () {
+      var btn = el('od-loadmore');
+      btn.disabled = true;
+      btn.textContent = 'Loading...';
+      state.offset += PAGE;
+      loadRequests(true);
+    });
+  }
+
+  var PAGE = 25;
+
+  function loadRequests(append) {
+    return Promise.all([
+      client.rpc('admin_request_counts'),
+      client.rpc('admin_recent_requests', {
+        p_bucket: state.bucket,
+        p_search: state.search || null,
+        p_limit: PAGE,
+        p_offset: state.offset
+      })
+    ]).then(function (res) {
+      var counts = res[0], r = res[1];
       var wrap = el('od-requests');
+      var tools = el('od-tools');
       if (r.error) {
         wrap.innerHTML = '<p class="ob-empty">Could not load requests (' + esc(r.error.message) + ').</p>';
         return;
       }
-      var rows = r.data || [];
+      if (!counts.error) { state.counts = counts.data || null; }
+      if (tools) tools.hidden = false;
+      renderTabs();
+
+      var payload = r.data || {};
+      var fresh = payload.rows || [];
+      state.more = payload.more === true;
+      state.rows = append ? state.rows.concat(fresh) : fresh;
+      var rows = state.rows;
+
       if (!rows.length) {
-        wrap.innerHTML = '<p class="ob-empty">Nothing has come in yet. Dealer requests land here the moment they are sent, and you get the email at the same time.</p>';
+        wrap.innerHTML = '<p class="ob-empty">' + emptyMessage() + '</p>';
+        renderMore();
         return;
       }
       wrap.innerHTML = '<div class="od-reqs">' + rows.map(function (o) {
@@ -320,9 +410,39 @@
             saved.textContent = 'Saved. The dealer sees this now.';
             saved.className = 'od-req__saved is-ok';
             setTimeout(function () { saved.textContent = ''; }, 4000);
+            /* Moving a request usually takes it out of the list you are
+               looking at, so the counts on the tabs have to follow. */
+            client.rpc('admin_request_counts').then(function (c) {
+              if (!c.error) { state.counts = c.data || state.counts; renderTabs(); }
+            });
           });
         });
       });
+
+      renderMore();
+    });
+  }
+
+  /* Typing should not fire a query per keystroke, and an empty box should go
+     back to the list rather than sit on a stale search. */
+  function wireSearch() {
+    var box = el('od-q');
+    if (!box) return;
+    var timer = null;
+    box.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        var q = box.value.trim();
+        if (q === state.search) return;
+        state.search = q;
+        state.offset = 0;
+        /* A search should look everywhere, not just inside the open tab. */
+        if (q) state.bucket = 'all';
+        loadRequests();
+      }, 300);
+    });
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { box.value = ''; box.dispatchEvent(new Event('input')); }
     });
   }
 
@@ -497,6 +617,7 @@
       var dealerLine = el('portal-dealer');
       if (dealerLine) dealerLine.textContent = 'Triple R office';
       wireForm();
+      wireSearch();
       loadDirectory();
       loadRequests();
     });
