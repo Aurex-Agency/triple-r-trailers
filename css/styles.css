@@ -2204,7 +2204,7 @@ a.tile { display: block; }
 }
 .od-loose__note { margin-top: 7px; font-size: 14px; color: var(--bone-dim); line-height: 1.6; }
 .od-loose__row {
-  display: grid; grid-template-columns: minmax(0, 1fr) 240px auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) 220px auto auto;
   align-items: center; gap: 12px; margin-top: 14px;
   padding-top: 14px; border-top: 1px solid var(--line);
 }

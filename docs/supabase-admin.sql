@@ -206,8 +206,46 @@ begin
   return jsonb_build_object('user_id', v_user, 'email', lower(trim(p_email)), 'dealer', v_dealer);
 end $$;
 
--- Takes a login off a dealership. The account still exists, it just has
--- nothing to see: no pricing, no documents, no ordering. Reattach any time.
+-- Deletes a login outright. This is what Remove on the office page does.
+--
+-- Unlinking used to be the only option, which left the account sitting in the
+-- "no dealership yet" box forever. That box is meant to say something needs
+-- doing, so filling it with people who were removed on purpose made the page
+-- busier every time the office tidied up, which is backwards.
+--
+-- Deleting costs nothing. Orders and parts requests hang off the dealership,
+-- not the person, and the contact name, phone and email are copied onto each
+-- request when it is sent. So the history stays exactly as it was; only the
+-- ability to sign in goes. If they come back, add them again on the same page.
+create or replace function public.admin_delete_login(p_user_id uuid)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_email text;
+begin
+  if not is_staff() then
+    raise exception 'This page is for Triple R office staff only.' using errcode = '42501';
+  end if;
+  if p_user_id = auth.uid() then
+    raise exception 'That is your own login. You cannot remove yourself.';
+  end if;
+  if exists (select 1 from staff_users where user_id = p_user_id) then
+    raise exception 'That is an office login. Office logins are removed in Supabase, on purpose, so this page cannot lock the office out of itself.';
+  end if;
+
+  select email into v_email from auth.users where id = p_user_id;
+  if v_email is null then
+    raise exception 'That login is already gone.';
+  end if;
+
+  -- dealer_members goes with it; orders keep their history with submitted_by
+  -- set to null, which is what the column was defined for.
+  delete from auth.users where id = p_user_id;
+
+  return jsonb_build_object('email', v_email);
+end $$;
+
+-- Kept for anything that still wants to detach without deleting. The office
+-- page no longer uses it.
 create or replace function public.admin_unlink_login(p_user_id uuid)
 returns void
 language plpgsql security definer set search_path = public as $$
@@ -379,6 +417,7 @@ begin
     'admin_save_dealer(uuid, text, text, text, text, text, boolean)',
     'admin_link_login(text, uuid, text)',
     'admin_unlink_login(uuid)',
+    'admin_delete_login(uuid)',
     'admin_request_counts()',
     'admin_recent_requests(text, text, int, int)',
     'admin_set_status(text, uuid, text)']

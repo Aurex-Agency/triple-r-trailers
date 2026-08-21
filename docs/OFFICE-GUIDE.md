@@ -44,14 +44,22 @@ put in their email, and click **Email me a sign-in link**.
 
 ## Somebody is out
 
-Find their dealership under **Who is on the network** and click
-**Remove access** next to their name.
+Find their dealership under **Who is on the network** and click **Remove**
+next to their name.
 
-They are cut off the moment you click it. No pricing, no documents, no
-ordering. Their login still exists, so if they come back you can put them
-right back on with **Add a person**. Nothing is lost either way.
+They are gone the moment you click it. Their login is deleted and they cannot
+sign in again.
+
+**Nothing you care about is lost.** Every order and parts request they ever
+sent stays on the dealership, with the name and phone number they gave at the
+time. You are only removing the ability to sign in. If they come back, click
+**Add a person** and they get a fresh invite.
 
 If a whole dealership is out, remove every person listed under it.
+
+**Office logins are different.** The page will not let you remove yourself or
+anybody else in the office. That is on purpose, so a wrong click cannot lock
+Triple R out of its own page. Those are removed in Supabase.
 
 ---
 
@@ -118,6 +126,10 @@ login gets made in the Supabase dashboard instead of on the Office page.
 Those show up in a red box near the bottom called **Logins with no dealership
 yet**. Pick the right dealership beside their email and click **Attach**. They
 are in.
+
+If one of them should not exist at all, **Remove** clears it out. The red box
+is there to tell you something needs doing, so once it is empty it disappears
+and the page goes quiet again.
 
 ---
 

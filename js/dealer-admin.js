@@ -155,7 +155,7 @@
       if (state.unlinked.length) {
         html += '<div class="od-loose">' +
           '<h3 class="od-loose__title">Logins with no dealership yet</h3>' +
-          '<p class="od-loose__note">These accounts exist but are not attached to a lot, so they cannot see pricing or order anything. Pick where each one belongs.</p>' +
+          '<p class="od-loose__note">These accounts can sign in but are not attached to a lot, so they see no pricing and cannot order. Put each one where it belongs, or remove it.</p>' +
           state.unlinked.map(function (u) {
             return '<div class="od-loose__row" data-email="' + esc(u.email) + '">' +
               '<span class="od-loose__who">' + esc(u.email) +
@@ -163,6 +163,8 @@
               '<select class="od-loose__pick" aria-label="Dealership for ' + esc(u.email) + '">' +
                 dealerOptions(null) + '</select>' +
               '<button type="button" class="od-mini od-mini--go" data-attach>Attach</button>' +
+              '<button type="button" class="od-mini od-mini--off" data-remove="' + esc(u.user_id) +
+                '" data-who="' + esc(u.email) + '">Remove</button>' +
               '</div>';
           }).join('') +
           '</div>';
@@ -193,8 +195,8 @@
                     '<span class="od-login__seen">' +
                       (u.signed_in ? 'last in ' + shortDate(u.last_seen) : 'invite not opened yet') +
                     '</span>' +
-                    '<button type="button" class="od-mini od-mini--off" data-unlink="' + esc(u.user_id) +
-                      '" data-who="' + esc(u.email) + '">Remove access</button>' +
+                    '<button type="button" class="od-mini od-mini--off" data-remove="' + esc(u.user_id) +
+                      '" data-who="' + esc(u.email) + '">Remove</button>' +
                     '</li>';
                 }).join('') + '</ul>'
               : '<p class="od-dealer__none">Nobody has a login here yet.</p>') +
@@ -220,18 +222,24 @@
       });
     });
 
-    wrap.querySelectorAll('[data-unlink]').forEach(function (btn) {
+    /* Remove means gone. Leaving them attached to nothing just moved the
+       clutter into the red box above, which is supposed to mean something
+       needs doing. */
+    wrap.querySelectorAll('[data-remove]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var who = btn.getAttribute('data-who');
-        if (!window.confirm('Take away ' + who + '\'s access?\n\nThey keep their login but see no pricing, no documents, and cannot order until you attach them again.')) return;
+        if (!window.confirm('Remove ' + who + '?\n\nTheir login is deleted and they cannot sign in again. ' +
+              'Everything they have ordered stays on the dealership, so nothing is lost. ' +
+              'If they come back, add them again on this page.')) return;
+        var label = btn.textContent;
         btn.disabled = true;
         btn.textContent = 'Removing...';
-        client.rpc('admin_unlink_login', { p_user_id: btn.getAttribute('data-unlink') })
+        client.rpc('admin_delete_login', { p_user_id: btn.getAttribute('data-remove') })
           .then(function (r) {
             if (r.error) {
               btn.disabled = false;
-              btn.textContent = 'Remove access';
-              window.alert('Could not remove that: ' + r.error.message);
+              btn.textContent = label;
+              window.alert(r.error.message);
               return;
             }
             loadDirectory();
