@@ -16,7 +16,7 @@
   <link rel="preload" href="assets/fonts/ultra-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=b5416069">
+  <link rel="stylesheet" href="css/styles.css?v=899fde8a">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -160,6 +160,7 @@
             <p class="sechead__lede">Send the request and it lands with our office. We will confirm the part, the price, and whether to ship it or hold it for pickup.</p>
           </header>
           <form class="form rev" data-mailform="Parts Request">
+            <div class="form__trap" aria-hidden="true"><label for="ps-hp">Company website</label><input id="ps-hp" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
             <div class="form__row">
               <div class="field"><label for="pr-name">Name</label><input id="pr-name" name="Name" type="text" required></div>
               <div class="field"><label for="pr-phone">Phone</label><input id="pr-phone" name="Phone" type="tel" required></div>
@@ -167,7 +168,7 @@
             <div class="field"><label for="pr-trailer">Trailer type and size</label><input id="pr-trailer" name="Trailer" type="text" placeholder="Example: 7x14 dump, 6x12 enclosed"></div>
             <div class="field"><label for="pr-part">Part or service needed</label><textarea id="pr-part" name="Request" required placeholder="Describe the part or the problem. Photos help; you can attach them in your email."></textarea></div>
             <button class="btn btn--red" type="submit">Send Parts Request</button>
-            <p class="form__note">Submitting opens your email app with the request addressed to our office. In a hurry? Call (662) 728-7975.</p>
+            <p class="form__note">This goes straight to the parts desk. In a hurry? Call (662) 728-7975, Monday to Friday, 7:00 to 3:30.</p>
           </form>
         </div>
         <aside class="split__aside rev">
@@ -291,6 +292,8 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=605f9bb5" defer></script>
+  <script src="js/portal-config.js?v=a8b7e9fa" defer></script>
+
+  <script src="js/main.js?v=db6ef477" defer></script>
 </body>
 </html>

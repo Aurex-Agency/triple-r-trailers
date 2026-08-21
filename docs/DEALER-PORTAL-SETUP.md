@@ -155,6 +155,55 @@ Steps 1 and 2 are the ones that matter.
 The office's own instructions are `docs/OFFICE-GUIDE.md`. It is written for
 somebody who has never seen a database and never needs to.
 
+## 11. Send the dealer their own copy (2 min)
+
+Until this runs, only the factory gets an email. The dealer clicks send, sees a
+confirmation on screen, and has nothing in their inbox to point at.
+
+1. **SQL Editor -> New query.** Paste `docs/supabase-dealer-receipt.sql`, Run.
+2. That is all. Every trailer order and every parts request now also emails a
+   copy to whoever the dealer put in the contact box, falling back to the
+   dealership email on file. Replies go to the office, not to a robot.
+
+It hooks onto the event row the request already writes, so nothing about how
+orders are saved or priced changes. A receipt only ever goes out once per
+request, so moving a status back to submitted does not send a second one, and a
+failed receipt can never roll back an order that is already saved.
+
+To turn them off later, and the factory email is unaffected either way:
+
+```sql
+insert into app_settings (key, value) values ('dealer_receipt', 'off')
+on conflict (key) do update set value = excluded.value;
+```
+
+The link in the receipt points at `site_url`, which this file seeds as
+`https://triplertrailers.com`. While the staging domain is the live one:
+
+```sql
+insert into app_settings (key, value) values ('site_url', 'https://test.triplertrailers.com')
+on conflict (key) do update set value = excluded.value;
+```
+
+## 12. Make the public forms send (2 min)
+
+Get a Quote, Become a Dealer, Parts Request, and Request Access used to open
+the visitor's own email app and wait for them to press send. On a phone with no
+mail app set up that does nothing, and the lead is gone without anybody knowing
+it existed.
+
+1. **SQL Editor -> New query.** Paste `docs/supabase-leads.sql`, Run.
+2. That is all. The forms now go straight to `order_email_to`, and every
+   enquiry is also kept in the `leads` table as a safety net.
+
+The destination is read from app_settings, never from the form, so nothing a
+visitor types can send mail anywhere else. A hidden honeypot field, a 45 second
+duplicate guard, and a cap of 12 a minute keep bots from flooding the office.
+If Supabase is ever unreachable the page falls back to the old mail app route
+rather than losing the enquiry.
+
+Past enquiries are under Table Editor -> `lead_summary`, newest first.
+
 ## Day-to-day for the office
 
 All of this is on the Office page now. See `docs/OFFICE-GUIDE.md`.
