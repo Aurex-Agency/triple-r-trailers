@@ -195,7 +195,7 @@
   function mailFallback(form, subject) {
     var lines = [];
     Array.prototype.forEach.call(form.elements, function (el) {
-      if (el.name && el.value && el.name !== 'company_website') {
+      if (el.name && el.value && el.name !== 'trr_hp') {
         lines.push(el.name + ': ' + el.value);
       }
     });
@@ -225,7 +225,7 @@
       var trap = '';
       Array.prototype.forEach.call(form.elements, function (el) {
         if (!el.name || !el.value) return;
-        if (el.name === 'company_website') { trap = el.value; return; }
+        if (el.name === 'trr_hp') { trap = el.value; return; }
         fields[el.name] = el.value;
       });
 
@@ -257,7 +257,7 @@
           payload: {
             kind: subject,
             page: window.location.pathname.replace(/^\//, ''),
-            company_website: trap,
+            trr_hp: trap,
             fields: fields
           }
         })
