@@ -1237,6 +1237,15 @@ section[id] { scroll-margin-top: 96px; }
   margin-top: 18px;
 }
 .pagehero__lede { margin-top: 20px; max-width: 62ch; color: var(--bone-dim); font-size: 17.5px; }
+.article-meta {
+  margin-top: 14px;
+  color: var(--steel);
+  font-family: var(--cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 .pagehero__ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
 
 .sec { padding-block: clamp(64px, 9vw, 110px); position: relative; }
