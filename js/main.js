@@ -192,12 +192,38 @@
   var LEAD_READY = LEAD_CFG.SUPABASE_URL && LEAD_CFG.SUPABASE_URL.indexOf('http') === 0 &&
     LEAD_CFG.SUPABASE_ANON_KEY && LEAD_CFG.SUPABASE_ANON_KEY.indexOf('PASTE') !== 0;
 
+  /* Keep lead measurement small and free of personal information. GA4 is
+     loaded in the page head; this guard keeps the site working if a visitor
+     blocks Analytics. */
+  function trackEvent(name, params) {
+    if (typeof window.gtag === 'function') window.gtag('event', name, params || {});
+  }
+
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!link) return;
+    var href = link.getAttribute('href') || '';
+    var context = link.closest('header, footer, .drawer, .pagehero, .bandcta');
+    var location = context ? (context.className || context.tagName).toString() : 'page';
+    if (href.indexOf('tel:') === 0) {
+      trackEvent('phone_click', { link_location: location, page_path: window.location.pathname });
+    } else if (href.indexOf('mailto:') === 0) {
+      trackEvent('email_click', { link_location: location, page_path: window.location.pathname });
+    } else if (href.indexOf('find-a-dealer.html') !== -1) {
+      trackEvent('dealer_finder_click', { link_location: location, page_path: window.location.pathname });
+    }
+  });
+
   function mailFallback(form, subject) {
     var lines = [];
     Array.prototype.forEach.call(form.elements, function (el) {
       if (el.name && el.value && el.name !== 'trr_hp') {
         lines.push(el.name + ': ' + el.value);
       }
+    });
+    trackEvent('lead_fallback_opened', {
+      lead_type: subject,
+      page_path: window.location.pathname
     });
     window.location.href = 'mailto:triplertrailers@gmail.com' +
       '?subject=' + encodeURIComponent(subject + ' from triplertrailers.com') +
@@ -283,6 +309,10 @@
           return;
         }
         form.reset();
+        trackEvent('generate_lead', {
+          lead_type: subject,
+          page_path: window.location.pathname
+        });
         note.textContent = 'Got it. That is on its way to Booneville and somebody will ' +
           'get back to you. Need it sooner, call (662) 728-7975.';
         note.style.color = 'var(--bone)';
