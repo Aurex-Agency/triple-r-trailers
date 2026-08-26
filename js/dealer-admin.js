@@ -163,6 +163,7 @@
               '<select class="od-loose__pick" aria-label="Dealership for ' + esc(u.email) + '">' +
                 dealerOptions(null) + '</select>' +
               '<button type="button" class="od-mini od-mini--go" data-attach>Attach</button>' +
+              '<button type="button" class="od-mini" data-resend="' + esc(u.email) + '">Resend</button>' +
               '<button type="button" class="od-mini od-mini--off" data-remove="' + esc(u.user_id) +
                 '" data-who="' + esc(u.email) + '">Remove</button>' +
               '</div>';
@@ -185,7 +186,10 @@
                 ' &middot; ' + d.orders + (d.orders === 1 ? ' trailer order' : ' trailer orders') +
                 ' &middot; ' + d.parts + (d.parts === 1 ? ' parts request' : ' parts requests') +
               '</p></div>' +
-              '<button type="button" class="od-mini" data-addlogin="' + esc(d.id) + '">Add a person</button>' +
+              '<div class="od-dealer__acts">' +
+                '<button type="button" class="od-mini" data-addlogin="' + esc(d.id) + '">Add a person</button>' +
+                '<button type="button" class="od-mini od-mini--off" data-killdealer="' + esc(d.id) + '">Remove</button>' +
+              '</div>' +
             '</header>' +
             (logins.length
               ? '<ul class="od-logins">' + logins.map(function (u) {
@@ -195,6 +199,7 @@
                     '<span class="od-login__seen">' +
                       (u.signed_in ? 'last in ' + shortDate(u.last_seen) : 'invite not opened yet') +
                     '</span>' +
+                    '<button type="button" class="od-mini" data-resend="' + esc(u.email) + '">Resend</button>' +
                     '<button type="button" class="od-mini od-mini--off" data-remove="' + esc(u.user_id) +
                       '" data-who="' + esc(u.email) + '">Remove</button>' +
                     '</li>';
@@ -209,8 +214,161 @@
     });
   }
 
+  /* A line of plain words under whichever row was just acted on, instead of a
+     browser pop-up that has to be dismissed before the page can be read. */
+  function say(row, msg, bad) {
+    var old = row.querySelector('.od-said');
+    if (old) old.remove();
+    var note = document.createElement('p');
+    note.className = 'od-said' + (bad ? ' is-bad' : '');
+    note.setAttribute('aria-live', 'polite');
+    note.textContent = msg;
+    row.appendChild(note);
+  }
+
+  /* Sends somebody their login again. Whether that means the invite once more
+     or a fresh password link depends on whether they ever opened the first
+     one, and Supabase is the only thing that knows, so it decides.
+
+     If the invite function has not been put in place on Supabase yet, a
+     password link still gets them in, so the button works either way. */
+  function resendLogin(email, btn, row) {
+    var label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    var landing = window.location.origin + '/dealer-set-password.html';
+
+    function finish(msg, bad) {
+      btn.disabled = false;
+      btn.textContent = label;
+      say(row, msg, bad);
+    }
+
+    function passwordLink() {
+      return client.auth.resetPasswordForEmail(email, { redirectTo: landing })
+        .then(function (r) {
+          if (r.error) { finish('Could not send that email: ' + r.error.message, true); return; }
+          finish('Sent. ' + email + ' has an email with a link to set a password.');
+        });
+    }
+
+    client.auth.getSession().then(function (s) {
+      var token = s.data.session && s.data.session.access_token;
+      return callCreateFunction(token, {
+        action: 'resend', email: email, redirect_to: landing
+      });
+    }).then(function (res) {
+      if (res.status === 404 || res.status === 502 || res.status === 503) return passwordLink();
+      if (!res.body || res.body.error) {
+        finish((res.body && res.body.error) ||
+          ('Something went wrong (' + res.status + '). Call the shop at ' + PHONE + ' if this keeps up.'), true);
+        return;
+      }
+      finish(res.body.sent === 'invite'
+        ? 'Sent. ' + email + ' has the invite again. It is the same email as the first one, so tell them to look in junk mail.'
+        : 'Sent. ' + email + ' has an email with a link to set a new password.');
+    }).catch(function (err) {
+      finish('Could not reach Supabase (' + err.message + ').', true);
+    });
+  }
+
+  /* --------------------------------------------------- removing a dealership */
+
+  /* Duplicates are the reason this exists, so the question the office is
+     really being asked is "where do this one's orders belong". */
+  function whatItHas(d) {
+    var out = [];
+    var people = (d.logins || []).length;
+    if (d.orders) out.push(d.orders + (d.orders === 1 ? ' trailer order' : ' trailer orders'));
+    if (d.parts) out.push(d.parts + (d.parts === 1 ? ' parts request' : ' parts requests'));
+    if (people) out.push(people + (people === 1 ? ' person with a login' : ' people with logins'));
+    return out.join(', ');
+  }
+
+  function killDealer(d, card) {
+    var open = card.querySelector('.od-kill');
+    if (open) { open.remove(); return; }
+
+    var has = whatItHas(d);
+    var others = state.dealers.filter(function (x) { return x.id !== d.id; });
+    var panel = document.createElement('div');
+    panel.className = 'od-kill';
+
+    if (!has) {
+      panel.innerHTML =
+        '<p class="od-kill__q">Remove <strong>' + esc(d.name) + '</strong>?</p>' +
+        '<p class="od-kill__note">Nothing has ever been ordered on it and nobody has a login there, so it just disappears.</p>';
+    } else if (!others.length) {
+      panel.innerHTML =
+        '<p class="od-kill__q">' + esc(d.name) + ' cannot be removed yet.</p>' +
+        '<p class="od-kill__note">It has ' + esc(has) + ' on it, and it is the only dealership on the list, ' +
+        'so there is nowhere for that to go. Add the dealership it should have been, then come back here.</p>';
+    } else {
+      panel.innerHTML =
+        '<p class="od-kill__q">Remove <strong>' + esc(d.name) + '</strong> and move its work across?</p>' +
+        '<p class="od-kill__note">It has ' + esc(has) + ' on it. That all moves to the dealership you pick, ' +
+        'exactly as it was, and then this one goes. Nothing is lost.</p>' +
+        '<label class="od-kill__label" for="kill-to-' + esc(d.id) + '">Move it all to</label>' +
+        '<select class="od-loose__pick" id="kill-to-' + esc(d.id) + '">' +
+          others.map(function (x) {
+            var where = x.city ? ', ' + x.city + (x.state ? ', ' + x.state : '') : '';
+            return '<option value="' + esc(x.id) + '">' + esc(x.name + where) + '</option>';
+          }).join('') +
+        '</select>';
+    }
+
+    panel.innerHTML += '<div class="od-kill__acts">' +
+      (has && !others.length ? '' :
+        '<button type="button" class="od-mini od-mini--off" data-killgo>Yes, remove it</button>') +
+      '<button type="button" class="od-mini" data-killno>Leave it alone</button>' +
+      '</div>';
+
+    card.appendChild(panel);
+
+    panel.querySelector('[data-killno]').addEventListener('click', function () { panel.remove(); });
+
+    var go = panel.querySelector('[data-killgo]');
+    if (!go) return;
+    go.addEventListener('click', function () {
+      var pick = panel.querySelector('select');
+      go.disabled = true;
+      go.textContent = 'Removing...';
+      client.rpc('admin_delete_dealer', {
+        p_id: d.id,
+        p_move_to: pick ? pick.value : null
+      }).then(function (r) {
+        if (r.error) {
+          go.disabled = false;
+          go.textContent = 'Yes, remove it';
+          say(panel, r.error.message, true);
+          return;
+        }
+        loadDirectory().then(function () {
+          /* Moving orders changes whose name is on them, so the list of
+             requests above is now out of date too. */
+          loadRequests();
+        });
+      });
+    });
+  }
+
   function wireDirectory() {
     var wrap = el('od-directory');
+
+    wrap.querySelectorAll('[data-resend]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        resendLogin(btn.getAttribute('data-resend'), btn,
+          btn.closest('li') || btn.closest('.od-loose__row'));
+      });
+    });
+
+    wrap.querySelectorAll('[data-killdealer]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-killdealer');
+        var d = state.dealers.filter(function (x) { return x.id === id; })[0];
+        if (d) killDealer(d, btn.closest('.od-dealer'));
+      });
+    });
 
     wrap.querySelectorAll('[data-addlogin]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -546,7 +704,10 @@
           full_name: fullName,
           dealer_id: dealerId || null,
           dealer: dealerId ? null : dealer,
-          redirect_to: window.location.origin + '/dealer-portal.html'
+          /* The invite has to land somewhere that lets them pick a password,
+             or the button in it just signs them in once and they are stuck
+             the next time. That page is the only job of dealer-set-password. */
+          redirect_to: window.location.origin + '/dealer-set-password.html'
         });
       }).then(function (res) {
         btn.disabled = false;

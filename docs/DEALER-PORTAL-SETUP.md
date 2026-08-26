@@ -26,8 +26,13 @@ By default anyone could create an account, which would let strangers into dealer
 
 1. **Authentication -> URL Configuration**.
 2. Site URL: `https://triplertrailers.com` (or wherever the site is deployed).
-3. Add `https://triplertrailers.com/dealer-portal.html` to Additional Redirect URLs.
-   (Sign-in links and invite emails redirect here.)
+3. Add both of these to Additional Redirect URLs:
+   - `https://triplertrailers.com/dealer-set-password.html`
+   - `https://triplertrailers.com/dealer-portal.html`
+
+   Invites, reset links and sign-in links all land on the first one, which is
+   the page that asks a dealer to pick a password. Without it in this list
+   Supabase refuses to send them anywhere and the links come back broken.
 
 ## 4. Create the documents bucket and policy (5 min)
 
