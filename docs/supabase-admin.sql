@@ -164,6 +164,80 @@ begin
   return v_id;
 end $$;
 
+-- Removes a dealership. This is what Remove on the office page does.
+--
+-- Duplicates happen. Somebody types a lot in twice, or types it in slightly
+-- differently, and now there are two of the same place on the list. Leaving
+-- them there makes the page harder to read every month, so they have to be
+-- removable from the page itself.
+--
+-- The one thing that must never happen is an order disappearing because a
+-- dealership was tidied up. So:
+--
+--   Nothing on it at all      it just goes.
+--   Orders, requests, people  say where those should go first. Everything
+--                             moves across, then the empty one goes.
+--
+-- Moving is what you want for a duplicate anyway: the orders were always the
+-- same lot's orders, they were just filed under the wrong spelling.
+create or replace function public.admin_delete_dealer(
+  p_id      uuid,
+  p_move_to uuid default null)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_name text; v_to text;
+  v_orders int; v_parts int; v_people int;
+  v_has text[];
+begin
+  if not is_staff() then
+    raise exception 'This page is for Triple R office staff only.' using errcode = '42501';
+  end if;
+
+  select name into v_name from dealers where id = p_id;
+  if v_name is null then
+    raise exception 'That dealership is already gone.';
+  end if;
+
+  select count(*) into v_orders from orders         where dealer_id = p_id;
+  select count(*) into v_parts  from part_requests  where dealer_id = p_id;
+  select count(*) into v_people from dealer_members where dealer_id = p_id;
+
+  if p_move_to is not null then
+    if p_move_to = p_id then
+      raise exception 'Pick a different dealership for its orders to go to.';
+    end if;
+    select name into v_to from dealers where id = p_move_to;
+    if v_to is null then
+      raise exception 'The dealership you picked to move things to is no longer on the list.';
+    end if;
+
+    -- dealer_members has one row per login, keyed on the login, so moving a
+    -- person across can never collide with somebody already over there.
+    update orders         set dealer_id = p_move_to where dealer_id = p_id;
+    update part_requests  set dealer_id = p_move_to where dealer_id = p_id;
+    update dealer_members set dealer_id = p_move_to where dealer_id = p_id;
+
+  elsif v_orders + v_parts + v_people > 0 then
+    v_has := array_remove(array[
+      case when v_orders > 0
+           then v_orders || case when v_orders = 1 then ' trailer order' else ' trailer orders' end end,
+      case when v_parts > 0
+           then v_parts || case when v_parts = 1 then ' parts request' else ' parts requests' end end,
+      case when v_people > 0
+           then v_people || case when v_people = 1 then ' person with a login' else ' people with logins' end end
+    ], null);
+    raise exception 'Nothing was removed. % still has %. Say where that should go first.',
+      v_name, array_to_string(v_has, ', ');
+  end if;
+
+  delete from dealers where id = p_id;
+
+  return jsonb_build_object(
+    'name', v_name, 'moved_to', v_to,
+    'orders', v_orders, 'parts', v_parts, 'people', v_people);
+end $$;
+
 -- ===========================================================================
 -- 4. Logins
 -- ===========================================================================
@@ -204,6 +278,38 @@ begin
         full_name = coalesce(excluded.full_name, dealer_members.full_name);
 
   return jsonb_build_object('user_id', v_user, 'email', lower(trim(p_email)), 'dealer', v_dealer);
+end $$;
+
+-- Where a login stands, so the Resend button can pick the right email to send.
+--
+-- Somebody who never opened their invite needs the invite again. Somebody who
+-- has been signing in for a year and forgot their password needs a reset link.
+-- They are two different emails, and sending the wrong one is how a dealer
+-- ends up on the phone to the office. This says which one applies.
+create or replace function public.admin_login_status(p_email text)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_out jsonb;
+begin
+  if not is_staff() then
+    raise exception 'This page is for Triple R office staff only.' using errcode = '42501';
+  end if;
+
+  select jsonb_build_object(
+           'user_id',   u.id,
+           'email',     u.email,
+           'confirmed', (u.email_confirmed_at is not null),
+           'signed_in', (u.last_sign_in_at is not null),
+           'is_staff',  exists (select 1 from staff_users s where s.user_id = u.id))
+    into v_out
+    from auth.users u
+   where lower(u.email) = lower(trim(coalesce(p_email, '')))
+   limit 1;
+
+  if v_out is null then
+    raise exception 'There is no login for % yet. Set them up with the form at the top of the page instead.', p_email;
+  end if;
+  return v_out;
 end $$;
 
 -- Deletes a login outright. This is what Remove on the office page does.
@@ -415,6 +521,8 @@ begin
   foreach f in array array[
     'admin_directory()',
     'admin_save_dealer(uuid, text, text, text, text, text, boolean)',
+    'admin_delete_dealer(uuid, uuid)',
+    'admin_login_status(text)',
     'admin_link_login(text, uuid, text)',
     'admin_unlink_login(uuid)',
     'admin_delete_login(uuid)',

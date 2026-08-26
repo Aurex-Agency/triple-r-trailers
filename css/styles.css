@@ -2213,7 +2213,7 @@ a.tile { display: block; }
 }
 .od-loose__note { margin-top: 7px; font-size: 14px; color: var(--bone-dim); line-height: 1.6; }
 .od-loose__row {
-  display: grid; grid-template-columns: minmax(0, 1fr) 220px auto auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) 220px auto auto auto;
   align-items: center; gap: 12px; margin-top: 14px;
   padding-top: 14px; border-top: 1px solid var(--line);
 }
@@ -2242,9 +2242,10 @@ a.tile { display: block; }
 }
 .od-dealer__meta { margin-top: 4px; font-size: 13px; color: var(--steel); }
 .od-dealer__none { margin-top: 12px; font-size: 13.5px; color: var(--steel); }
+.od-dealer__acts { display: flex; gap: 8px; flex-shrink: 0; }
 .od-logins { margin-top: 14px; border-top: 1px solid var(--line); }
 .od-logins li {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: center; gap: 14px;
   padding: 11px 0; border-bottom: 1px solid var(--line);
 }
@@ -2267,6 +2268,46 @@ a.tile { display: block; }
 .od-mini--go { background: var(--red); border-color: var(--red); color: #fff; }
 .od-mini--go:hover { background: var(--red-bright); border-color: var(--red-bright); color: #fff; }
 
+/* What just happened, said in the row it happened in, so nothing has to be
+   dismissed before the page can be read again. */
+.od-said {
+  grid-column: 1 / -1; margin-top: 6px;
+  font-size: 13px; line-height: 1.55; color: var(--bone-dim);
+}
+.od-said.is-bad { color: var(--red-bright); }
+
+/* ---- taking a dealership off the list ---- */
+
+.od-kill {
+  margin-top: 16px; padding: 16px 18px;
+  border: 1px solid var(--red); background: var(--ink);
+}
+.od-kill__q {
+  font-family: var(--cond); font-weight: 700; font-size: 16px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--bone);
+}
+.od-kill__q strong { color: var(--red-bright); }
+.od-kill__note { margin-top: 7px; font-size: 14px; color: var(--bone-dim); line-height: 1.6; }
+.od-kill__label {
+  display: block; margin-top: 14px; margin-bottom: 7px;
+  font-family: var(--cond); font-weight: 700; font-size: 12.5px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--steel);
+}
+.od-kill select { width: 100%; max-width: 380px; }
+.od-kill__acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+/* ---- picking a password ---- */
+
+.sp-col { max-width: 620px; }
+.sp-who { font-size: 15px; color: var(--bone-dim); margin-bottom: 18px; }
+.sp-who strong { color: var(--bone); }
+.sp-show {
+  display: flex; align-items: center; gap: 9px; margin: 4px 0 20px;
+  font-size: 14px; color: var(--bone-dim); cursor: pointer;
+}
+.sp-show input { width: 15px; height: 15px; accent-color: var(--red); }
+.sp-skip { margin-top: 18px; }
+
 @media (max-width: 1040px) {
   .od-req { grid-template-columns: 170px minmax(0, 1fr); }
   .od-req__what, .od-req__set { grid-column: span 1; }
@@ -2277,11 +2318,16 @@ a.tile { display: block; }
   .od-f--wide { grid-column: span 1; }
   .od-f--state { max-width: none; }
   .od-req { grid-template-columns: 1fr; gap: 12px; }
-  .od-loose__row { grid-template-columns: 1fr; }
-  .od-loose__row .od-mini { justify-self: start; }
+  /* On a phone the buttons pair off two to a row rather than making a tower
+     of one word each, which is what a fourth button did to it. */
+  .od-loose__row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .od-loose__who, .od-loose__pick, .od-loose__row .od-mini--go { grid-column: 1 / -1; }
+  .od-loose__row .od-mini { justify-self: stretch; }
   .od-dealer__head { flex-direction: column; gap: 12px; }
-  .od-logins li { grid-template-columns: 1fr; gap: 6px; }
-  .od-logins li .od-mini { justify-self: start; margin-top: 4px; }
+  .od-logins li { grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+  .od-login__who, .od-login__seen { grid-column: 1 / -1; }
+  .od-logins li .od-mini { justify-self: stretch; margin-top: 4px; }
+  .od-kill__acts .od-mini { flex: 1 1 auto; }
 }
 
 /* A field only a bot fills in. Kept out of sight and out of the tab order

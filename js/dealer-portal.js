@@ -79,7 +79,15 @@
           email: email,
           options: {
             shouldCreateUser: false,
-            emailRedirectTo: window.location.origin + window.location.pathname.replace('dealer-login.html', 'dealer-portal.html')
+            /* Lands on the page that offers them a password, so somebody who
+               keeps asking for a link every morning gets shown the way out of
+               that. It has a Skip straight through to the documents.
+
+               It is also the only page on the site with no analytics tag,
+               which matters here: the link arrives with a sign-in token in the
+               address, and an analytics tag reports the address it loads on. */
+            emailRedirectTo: window.location.origin +
+              window.location.pathname.replace('dealer-login.html', 'dealer-set-password.html')
           }
         }).then(function (res) {
           if (res.error) {

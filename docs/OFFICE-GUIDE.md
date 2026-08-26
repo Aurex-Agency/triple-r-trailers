@@ -37,8 +37,50 @@ pick that dealership from the list. Or find them further down the page and click
 **Add a person**. As many as they need.
 
 **Their invite email never showed up?** It goes to junk more often than
-anywhere else. If it is truly gone, they can go to the dealer login page,
-put in their email, and click **Email me a sign-in link**.
+anywhere else. Find them under **Who is on the network** and click **Resend**
+next to their name, which sends the whole thing again. They can also go to the
+dealer login page, put in their email, and click **Email me a sign-in link**.
+
+---
+
+## Somebody cannot get in
+
+Find them under **Who is on the network** and click **Resend** next to their
+name. That is the whole job.
+
+The page works out on its own which email they need:
+
+- **Never opened the first one.** They get the invite again, word for word.
+- **Has been signing in and forgot the password.** They get a reset link.
+
+Either way they land on a page that asks them to pick a password, and once
+they have picked one they are straight into their documents. You never see it
+and you never set it.
+
+Nothing about their dealership, their orders or their past requests changes.
+Resend as many times as you like; only the newest link works.
+
+---
+
+## There are two of the same dealership on the list
+
+Somebody typed the lot in twice, or typed it in slightly differently, and now
+it is on the list twice. Take one off.
+
+Find the wrong one under **Who is on the network** and click **Remove** in its
+top right corner.
+
+- **If nothing was ever put on it,** it asks you once and then it is gone.
+- **If it has orders, parts requests or people on it,** it will not throw
+  those away. It shows you what is on it and asks which dealership they belong
+  to. Pick the right one, and every order, every parts request and every login
+  moves across exactly as it was, keeping its number. Then the wrong one goes.
+
+That second case is usually what you want with a duplicate anyway. The orders
+were always that lot's orders; they were just filed under the wrong spelling.
+
+Nothing is deleted in that move. Open the good dealership afterwards and you
+will see the orders sitting on it.
 
 ---
 
@@ -55,7 +97,9 @@ sent stays on the dealership, with the name and phone number they gave at the
 time. You are only removing the ability to sign in. If they come back, click
 **Add a person** and they get a fresh invite.
 
-If a whole dealership is out, remove every person listed under it.
+If a whole dealership is out, remove every person listed under it. Leave the
+dealership itself on the list unless it is a duplicate, because their old
+orders live on it.
 
 **Office logins are different.** The page will not let you remove yourself or
 anybody else in the office. That is on purpose, so a wrong click cannot lock
@@ -157,6 +201,9 @@ gets loaded.
 - **A dealer cannot change where a request stands.** Only office logins can.
 - **Nobody can sign themselves up.** The only accounts that exist are ones you
   sent an invite to.
+- **An order cannot be lost by tidying up.** Removing a dealership that has
+  orders on it is refused outright until you say which dealership those orders
+  belong to, and then they move rather than go.
 
 ---
 
@@ -168,7 +215,9 @@ turned off for this site, and say something so it can be fixed properly.
 
 ## When something looks wrong
 
-Nothing on this page deletes an order or a dealership, so there is no way to
-break something by clicking around on it. If a message on the page does not
-make sense, it will say what it wants in plain words. If it still does not make
-sense, take a picture of the screen and send it over.
+Nothing on this page deletes an order, so there is no way to lose work by
+clicking around on it. Removing a dealership is the only thing that takes
+anything off the page at all, and it will not do that until it knows where its
+orders should go. If a message on the page does not make sense, it will say
+what it wants in plain words. If it still does not make sense, take a picture
+of the screen and send it over.
