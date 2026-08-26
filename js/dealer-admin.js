@@ -226,12 +226,21 @@
     row.appendChild(note);
   }
 
-  /* Sends somebody their login again. Whether that means the invite once more
-     or a fresh password link depends on whether they ever opened the first
-     one, and Supabase is the only thing that knows, so it decides.
+  /* Sends somebody their login again.
 
-     If the invite function has not been put in place on Supabase yet, a
-     password link still gets them in, so the button works either way. */
+     Two different emails can be meant by that, and only the database knows
+     which, so it is asked first:
+
+       has opened their invite    a password reset, which is a thing the
+                                  browser can send on its own
+       never opened it            the invite again, which only the invite
+                                  function on Supabase can send
+
+     That second one is the only case that needs the function at all, and if
+     the function is missing, or is an older copy that predates this button, a
+     password reset gets them in just the same. So it falls back rather than
+     showing the office whatever an old copy made of being asked something it
+     has never heard of. */
   function resendLogin(email, btn, row) {
     var label = btn.textContent;
     btn.disabled = true;
@@ -248,25 +257,36 @@
       return client.auth.resetPasswordForEmail(email, { redirectTo: landing })
         .then(function (r) {
           if (r.error) { finish('Could not send that email: ' + r.error.message, true); return; }
-          finish('Sent. ' + email + ' has an email with a link to set a password.');
+          finish('Sent. ' + email + ' has an email with a link to pick a password. ' +
+                 'Tell them to look in junk mail if it is not there in a minute.');
         });
     }
 
-    client.auth.getSession().then(function (s) {
-      var token = s.data.session && s.data.session.access_token;
-      return callCreateFunction(token, {
-        action: 'resend', email: email, redirect_to: landing
+    client.rpc('admin_login_status', { p_email: email }).then(function (s) {
+      if (s.error) { finish(s.error.message, true); return; }
+      if (s.data && s.data.confirmed === true) return passwordLink();
+
+      return client.auth.getSession().then(function (sess) {
+        var token = sess.data.session && sess.data.session.access_token;
+        return callCreateFunction(token, {
+          action: 'resend', email: email, redirect_to: landing
+        });
+      }).then(function (res) {
+        var sent = res.body && res.body.sent;
+        if (sent === 'invite') {
+          finish('Sent. ' + email + ' has the invite again. It is the same email as the ' +
+                 'first one, so tell them to look in junk mail.');
+          return;
+        }
+        if (sent === 'reset') {
+          finish('Sent. ' + email + ' has an email with a link to pick a password. ' +
+                 'Tell them to look in junk mail if it is not there in a minute.');
+          return;
+        }
+        /* No "sent" in the answer means no resend happened, whatever else it
+           said back. Send the reset from here instead. */
+        return passwordLink();
       });
-    }).then(function (res) {
-      if (res.status === 404 || res.status === 502 || res.status === 503) return passwordLink();
-      if (!res.body || res.body.error) {
-        finish((res.body && res.body.error) ||
-          ('Something went wrong (' + res.status + '). Call the shop at ' + PHONE + ' if this keeps up.'), true);
-        return;
-      }
-      finish(res.body.sent === 'invite'
-        ? 'Sent. ' + email + ' has the invite again. It is the same email as the first one, so tell them to look in junk mail.'
-        : 'Sent. ' + email + ' has an email with a link to set a new password.');
     }).catch(function (err) {
       finish('Could not reach Supabase (' + err.message + ').', true);
     });
