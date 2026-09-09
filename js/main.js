@@ -205,14 +205,23 @@
     var href = link.getAttribute('href') || '';
     var context = link.closest('header, footer, .drawer, .pagehero, .bandcta');
     var location = context ? (context.className || context.tagName).toString() : 'page';
+    var params = { link_location: location, page_path: window.location.pathname };
+    var dealerId = link.getAttribute('data-dealer-id');
+    if (dealerId && /^[a-z0-9-]{1,100}$/.test(dealerId)) params.dealer_id = dealerId;
     if (href.indexOf('tel:') === 0) {
-      trackEvent('phone_click', { link_location: location, page_path: window.location.pathname });
+      trackEvent('phone_click', params);
     } else if (href.indexOf('mailto:') === 0) {
       trackEvent('email_click', { link_location: location, page_path: window.location.pathname });
     } else if (href.indexOf('find-a-dealer.html') !== -1) {
       trackEvent('dealer_finder_click', { link_location: location, page_path: window.location.pathname });
+    } else if (dealerId && href.indexOf('https://www.google.com/maps/') === 0) {
+      trackEvent('dealer_map_click', params);
     }
   });
+
+  function attributionFields() {
+    return window.TRIPLE_R_ATTRIBUTION ? window.TRIPLE_R_ATTRIBUTION.getFields() : {};
+  }
 
   function mailFallback(form, subject) {
     var lines = [];
@@ -221,6 +230,8 @@
         lines.push(el.name + ': ' + el.value);
       }
     });
+    var sourceFields = attributionFields();
+    Object.keys(sourceFields).forEach(function (key) { lines.push(key + ': ' + sourceFields[key]); });
     trackEvent('lead_fallback_opened', {
       lead_type: subject,
       page_path: window.location.pathname
@@ -254,6 +265,8 @@
         if (el.name === 'trr_hp') { trap = el.value; return; }
         fields[el.name] = el.value;
       });
+      // Kept in the existing lead JSON and office email, never sent to GA4.
+      Object.assign(fields, attributionFields());
 
       var btn = form.querySelector('button[type=submit]');
       var note = formNote(form);
@@ -295,7 +308,7 @@
         clearTimeout(giveUp);
         if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
 
-        if (!r.ok) {
+        if (!r.ok || !r.body || r.body.ok !== true) {
           /* P0001 is our own message, written for the visitor, so show it.
              Anything else is the database or the connection having a problem,
              and a visitor should never be shown that. Hand them the mail app
@@ -309,12 +322,17 @@
           return;
         }
         form.reset();
-        trackEvent('generate_lead', {
-          lead_type: subject,
-          page_path: window.location.pathname
-        });
-        note.textContent = 'Got it. That is on its way to Booneville and somebody will ' +
-          'get back to you. Need it sooner, call (662) 728-7975.';
+        // The server deliberately acknowledges duplicates and trapped bots.
+        // Neither is a second qualified inquiry in Analytics.
+        if (!trap && !r.body.duplicate) {
+          trackEvent('generate_lead', {
+            lead_type: subject,
+            page_path: window.location.pathname
+          });
+        }
+        note.textContent = r.body.duplicate ?
+          'We already received that request. Need to add something? Call (662) 728-7975.' :
+          'Your request has been saved for the office in Booneville. Need it sooner? Call (662) 728-7975.';
         note.style.color = 'var(--bone)';
       }).catch(function () {
         if (done) return;
