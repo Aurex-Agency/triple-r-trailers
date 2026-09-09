@@ -31,8 +31,12 @@
     var m = L.marker([d.lat, d.lng], { icon: icon(!!d.factory) }).addTo(map);
     var lines = ['<strong>' + d.name + '</strong>'];
     if (d.city) lines.push(d.city + (d.state ? ', ' + d.state : ''));
-    if (d.phone) lines.push('<a href="tel:+1' + d.phone.replace(/\D/g, '') + '">' + d.phone + '</a>');
-    lines.push('<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + d.lat + ',' + d.lng + '">Directions</a>');
+    if (d.phone) lines.push('<a data-dealer-id="' + d.id + '" href="tel:+1' + d.phone.replace(/\D/g, '') + '">' + d.phone + '</a>');
+    // The data contains town-level pins, not verified street addresses.
+    // Search for the actual business instead of routing to a town center.
+    var mapQuery = d.factory ? '82 County Road 1111 Booneville MS 38829' : d.name + ' ' + d.city + ' ' + d.state;
+    lines.push('<a data-dealer-id="' + d.id + '" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapQuery) + '">Find this location on Maps</a>');
+    if (!d.factory) lines.push('Confirm the street address and stock before traveling.');
     m.bindPopup(lines.join('<br>'));
     markers.push({ data: d, marker: m });
   });
@@ -66,7 +70,7 @@
       btn.type = 'button';
       btn.className = 'dmap-item';
       var meta = [r.m.data.city && r.m.data.state ? r.m.data.city + ', ' + r.m.data.state : '',
-                  r.miles != null ? Math.round(r.miles) + ' mi' : ''].filter(Boolean).join(' &middot; ');
+                  r.miles != null ? 'about ' + Math.round(r.miles) + ' mi straight-line' : ''].filter(Boolean).join(' &middot; ');
       btn.innerHTML = '<span class="dmap-item__name">' + r.m.data.name + '</span>' +
         (meta ? '<span class="dmap-item__meta">' + meta + '</span>' : '');
       btn.addEventListener('click', function () {

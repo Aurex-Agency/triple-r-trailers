@@ -7,7 +7,7 @@ anything in css/ or js/.
 """
 import glob, hashlib, os, re
 
-REPO = "/home/user/triple-r-trailers"
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = ["css/styles.css"] + sorted(glob.glob(f"{REPO}/js/*.js"))
 ASSETS = ["css/styles.css"] + [os.path.relpath(p, REPO) for p in sorted(glob.glob(f"{REPO}/js/*.js"))]
 

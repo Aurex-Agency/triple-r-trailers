@@ -27,7 +27,7 @@
   <link rel="preload" href="assets/fonts/ultra-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=85a5738d">
+  <link rel="stylesheet" href="css/styles.css?v=8dff07b6">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -203,6 +203,7 @@
               <div class="field">
                 <label for="ct-type">Trailer type</label>
                 <select id="ct-type" name="Trailer type">
+                  <option value="">Choose a trailer type</option>
                   <option>Utility</option>
                   <option>Enclosed cargo</option>
                   <option>Dump</option>
@@ -214,8 +215,9 @@
                 </select>
               </div>
             </div>
+            <div class="field"><label for="ct-location">City, state or ZIP code</label><input id="ct-location" name="Location" type="text" required autocomplete="address-level2"></div>
             <div class="field"><label for="ct-msg">What do you need?</label><textarea id="ct-msg" name="Message" required placeholder="Size, load, timeline, your town. Whatever you know."></textarea></div>
-            <button class="btn btn--red btn--lg" type="submit">Send It</button>
+            <button class="btn btn--red btn--lg" type="submit">Request a Trailer Quote</button>
             <p class="form__note">This goes straight to the factory in Booneville. Somebody gets back to you, usually the same day.</p>
           </form>
         </div>
@@ -346,6 +348,7 @@
 
   <script src="js/portal-config.js?v=a8b7e9fa" defer></script>
 
-  <script src="js/main.js?v=dfb02ba2" defer></script>
+  <script src="js/lead-attribution.js?v=11b323af" defer></script>
+  <script src="js/main.js?v=e77c4c9b" defer></script>
 </body>
 </html>
