@@ -2486,3 +2486,88 @@ a.tile { display: block; }
 }
 .readnext__list a::before { content: '\2192'; color: var(--red-bright); margin-right: 10px; }
 .readnext__list a:hover { color: var(--bone); border-bottom-color: var(--red); }
+
+/* ==========================================================================
+   Clips
+   Phone footage from the yard. Vertical by default because that is how it
+   was shot; one landscape frame gets .clip--wide. Nothing here autoplays
+   under prefers-reduced-motion, so the poster and the button are the
+   resting state, not a fallback.
+   ========================================================================== */
+.clips {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.clip { position: relative; margin: 0; }
+.clip__frame {
+  position: relative; display: block; overflow: hidden;
+  background: var(--coal);
+  aspect-ratio: 9 / 16;
+}
+.clip--wide .clip__frame { aspect-ratio: 16 / 9; }
+.clip--wide { grid-column: 1 / -1; }
+.clip video,
+.clip__poster {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  filter: saturate(0.82) contrast(1.05) brightness(0.9);
+}
+.clip__frame::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(90% 75% at 50% 45%, rgba(193, 18, 31, 0.06), transparent 70%),
+    linear-gradient(to top, rgba(12, 13, 15, 0.55) 0%, transparent 38%);
+}
+.clip figcaption {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px; padding-left: 8px;
+  font-family: var(--cond); font-weight: 600; font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--steel);
+}
+.clip figcaption::before {
+  content: ''; width: 7px; height: 7px; flex: none;
+  background: var(--red); transform: rotate(45deg);
+}
+/* Shown only when the visitor asks for less motion, or the clip cannot play */
+.clip__play {
+  position: absolute; z-index: 2; inset: auto 0 0 0;
+  display: none; align-items: center; gap: 10px;
+  margin: 0; padding: 14px 16px;
+  border: 0; background: none; cursor: pointer;
+  font-family: var(--cond); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone);
+}
+.clip__play::before {
+  content: ''; flex: none;
+  border-style: solid; border-width: 7px 0 7px 12px;
+  border-color: transparent transparent transparent var(--red-bright);
+}
+.clip__play:hover { color: var(--bone); }
+.clip__play:focus-visible { outline: 2px solid var(--red-bright); outline-offset: -4px; }
+.clip.is-manual .clip__play { display: flex; }
+.clip.is-playing .clip__play { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .clip__play { display: flex; }
+}
+
+/* Load shots inside a guide: three real trailers answering the size list
+   directly above them, rather than one decorative photo at the top. */
+.loadgrid {
+  display: grid; gap: 14px; margin: 26px 0 8px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.loadgrid figure { margin: 0; }
+.loadgrid .blend img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.loadgrid figcaption {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 6px; padding-left: 8px;
+  font-family: var(--cond); font-weight: 600; font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--steel);
+}
+.loadgrid figcaption::before {
+  content: ''; width: 7px; height: 7px; flex: none;
+  background: var(--red); transform: rotate(45deg);
+}
+.prose .clips { margin: 26px 0 8px; }

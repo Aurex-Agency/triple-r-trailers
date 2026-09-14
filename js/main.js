@@ -111,7 +111,24 @@
         var mid = r.top + r.height / 2 - vh / 2;
         var f = parseFloat(el.getAttribute('data-plx')) || 0.05;
         var s = el.getAttribute('data-plx-scale') || '1.12';
-        el.style.transform = 'translateY(' + (-mid * f).toFixed(1) + 'px)' + (s === '1' ? '' : ' scale(' + s + ')');
+        var shift = -mid * f;
+        // The scale is what buys the photo room to move inside an
+        // overflow:hidden box. Past that room the edge of the photo comes
+        // back inside the box and the panel behind it shows as a hard line
+        // along the top or bottom of the picture. It is worst as a tile
+        // enters the viewport, which is exactly when .rev reveals it, so it
+        // reads as the photo animating in with a seam down it.
+        //
+        // Short boxes have the least room and the same travel, so a 4:3
+        // gallery tile runs out well before a 3:4 one does. Clamp to what
+        // the scale actually paid for and the seam cannot happen at any
+        // viewport height. The clamp only engages when the tile is already
+        // at the very edge of the screen, where the parallax is not doing
+        // visible work anyway.
+        var room = r.height * (parseFloat(s) - 1) / 2;
+        if (shift > room) shift = room;
+        else if (shift < -room) shift = -room;
+        el.style.transform = 'translate3d(0,' + shift.toFixed(1) + 'px,0)' + (s === '1' ? '' : ' scale(' + s + ')');
       });
       fxTicking = false;
     };
@@ -343,6 +360,72 @@
       });
     });
   });
+
+
+  /* ---------- Yard clips ----------
+     Muted phone footage, so nothing here needs sound and none of the files
+     carry an audio track. A clip only starts once it is actually on screen
+     and only after the browser has been told to fetch it, which is why the
+     markup ships preload="none" and no src until this runs.
+
+     Under prefers-reduced-motion nothing starts on its own. The poster stays
+     and the visitor gets a button, because a looping video is motion whether
+     or not we call it decoration. */
+  var clips = [].slice.call(document.querySelectorAll('[data-clip]'));
+  if (clips.length) {
+    var loadClip = function (video) {
+      if (video.dataset.loaded) return;
+      video.dataset.loaded = '1';
+      [].slice.call(video.querySelectorAll('source[data-src]')).forEach(function (src) {
+        src.src = src.dataset.src;
+      });
+      video.load();
+    };
+
+    var play = function (fig) {
+      var video = fig.querySelector('video');
+      if (!video) return;
+      loadClip(video);
+      var started = video.play();
+      if (started && started.catch) {
+        // Autoplay can still be refused (Low Power Mode, for one). Fall back
+        // to the button rather than leaving a frozen poster and no way in.
+        started.catch(function () { fig.classList.add('is-manual'); });
+      }
+      fig.classList.add('is-playing');
+    };
+
+    clips.forEach(function (fig) {
+      var btn = fig.querySelector('.clip__play');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          fig.classList.remove('is-manual');
+          play(fig);
+        });
+      }
+      if (reducedMotion) { fig.classList.add('is-manual'); }
+    });
+
+    if (!reducedMotion && 'IntersectionObserver' in window) {
+      var clipIo = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var fig = entry.target;
+          var video = fig.querySelector('video');
+          if (!video) return;
+          if (entry.isIntersecting) {
+            play(fig);
+          } else if (fig.classList.contains('is-playing')) {
+            // Off screen is wasted decode work and wasted battery.
+            video.pause();
+            fig.classList.remove('is-playing');
+          }
+        });
+      }, { rootMargin: '100px 0px', threshold: 0.25 });
+      clips.forEach(function (fig) { clipIo.observe(fig); });
+    } else if (!reducedMotion) {
+      clips.forEach(play);
+    }
+  }
 
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById('year');
