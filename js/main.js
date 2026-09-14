@@ -111,7 +111,24 @@
         var mid = r.top + r.height / 2 - vh / 2;
         var f = parseFloat(el.getAttribute('data-plx')) || 0.05;
         var s = el.getAttribute('data-plx-scale') || '1.12';
-        el.style.transform = 'translateY(' + (-mid * f).toFixed(1) + 'px)' + (s === '1' ? '' : ' scale(' + s + ')');
+        var shift = -mid * f;
+        // The scale is what buys the photo room to move inside an
+        // overflow:hidden box. Past that room the edge of the photo comes
+        // back inside the box and the panel behind it shows as a hard line
+        // along the top or bottom of the picture. It is worst as a tile
+        // enters the viewport, which is exactly when .rev reveals it, so it
+        // reads as the photo animating in with a seam down it.
+        //
+        // Short boxes have the least room and the same travel, so a 4:3
+        // gallery tile runs out well before a 3:4 one does. Clamp to what
+        // the scale actually paid for and the seam cannot happen at any
+        // viewport height. The clamp only engages when the tile is already
+        // at the very edge of the screen, where the parallax is not doing
+        // visible work anyway.
+        var room = r.height * (parseFloat(s) - 1) / 2;
+        if (shift > room) shift = room;
+        else if (shift < -room) shift = -room;
+        el.style.transform = 'translate3d(0,' + shift.toFixed(1) + 'px,0)' + (s === '1' ? '' : ' scale(' + s + ')');
       });
       fxTicking = false;
     };
