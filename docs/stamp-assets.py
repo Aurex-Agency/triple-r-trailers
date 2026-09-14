@@ -121,7 +121,12 @@ rules = ignore_rules(os.path.join(REPO, ".vercelignore"))
 refs = set()
 for page in glob.glob(f"{REPO}/*.html"):
     body = open(page, encoding="utf-8").read()
-    for m in re.finditer(r'(?:href|src)="(?!https?:|//|mailto:|tel:|#)([^"?#]+)', body):
+    # poster= carries the still a <video> shows before it plays, and data-src=
+    # carries the clip itself, which is only promoted to src= once the visitor
+    # scrolls it into view. Neither is an href or a src in the markup, so both
+    # would walk straight past this check and only fail on the live site.
+    for m in re.finditer(
+            r'(?:href|src|poster|data-src)="(?!https?:|//|mailto:|tel:|#)([^"?#]+)', body):
         ref = m.group(1)
         if os.path.exists(os.path.join(REPO, ref)):
             refs.add(ref)
