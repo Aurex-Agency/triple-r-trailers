@@ -6,7 +6,7 @@ import json, re, xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://triplertrailers.com'
-NEW = ['choosing-a-trailer-manufacturer.html', '6x12-vs-7x16-enclosed-trailer.html']
+NEW = ['14k-dump-trailer-payload.html', 'what-size-trailer-for-polaris-ranger-crew.html', 'enclosed-trailer-cost.html', 'choosing-a-trailer-manufacturer.html', '6x12-vs-7x16-enclosed-trailer.html']
 
 class Page(HTMLParser):
     def __init__(self, path):

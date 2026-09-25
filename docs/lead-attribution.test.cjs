@@ -62,3 +62,22 @@ test('server validation stays on the form and dealer phone clicks retain the des
   const link={getAttribute:key=>({'href':'tel:+19014908205','data-dealer-id':'vista-trailers-llc'})[key],closest:()=>null};
   h.docHandlers.click({target:{closest:()=>link}});assert.equal(h.events[0][2].dealer_id,'vista-trailers-llc');
 });
+test('new guide attribution survives quote navigation and product reporting excludes arbitrary text',async()=>{
+  const store=new Map();attribution(environment('/14k-dump-trailer-payload.html',store));
+  assert.equal(attribution(environment('/contact.html',store)).getFields()['Website landing page'],'/14k-dump-trailer-payload.html');
+  for(const product of ['Dump','private@example.com']) {
+    const h=formHarness();h.form.elements.push({name:'Trailer type',value:product});await h.submit();
+    const lead=h.events.find(e=>e[1]==='generate_lead');
+    assert.equal(lead[2].trailer_type,product==='Dump'?'Dump':undefined);
+    assert(!JSON.stringify(h.events).includes('private@example.com'));
+  }
+});
+test('dealer website and factory phone actions remain distinct from leads',()=>{
+  const h=formHarness();
+  for(const [href,id,event,role] of [['https://www.jdtsmidsouth.com/all-inventory/triple-r-trailers/','jason-dietsch-trailer-sales-midsouth','dealer_website_click',undefined],['tel:+16627287975',null,'phone_click','factory'],['contact.html?trailer=Dump#quote-form',null,'quote_cta_click',undefined]]) {
+    const link={getAttribute:key=>({'href':href,'data-dealer-id':id})[key],closest:()=>null};
+    h.docHandlers.click({target:{closest:()=>link}});
+    const actual=h.events.at(-1);assert.equal(actual[1],event);assert.equal(actual[2].contact_role,role);
+  }
+  assert(!h.events.some(e=>e[1]==='generate_lead'));
+});

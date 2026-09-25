@@ -226,6 +226,7 @@
     var dealerId = link.getAttribute('data-dealer-id');
     if (dealerId && /^[a-z0-9-]{1,100}$/.test(dealerId)) params.dealer_id = dealerId;
     if (href.indexOf('tel:') === 0) {
+      params.contact_role = dealerId ? 'dealer' : 'factory';
       trackEvent('phone_click', params);
     } else if (href.indexOf('mailto:') === 0) {
       trackEvent('email_click', { link_location: location, page_path: window.location.pathname });
@@ -233,6 +234,10 @@
       trackEvent('dealer_finder_click', { link_location: location, page_path: window.location.pathname });
     } else if (dealerId && href.indexOf('https://www.google.com/maps/') === 0) {
       trackEvent('dealer_map_click', params);
+    } else if (dealerId && href.indexOf('https://') === 0) {
+      trackEvent('dealer_website_click', params);
+    } else if (/^(?:\/)?contact\.html(?:[?#]|$)/.test(href)) {
+      trackEvent('quote_cta_click', params);
     }
   });
 
@@ -342,10 +347,16 @@
         // The server deliberately acknowledges duplicates and trapped bots.
         // Neither is a second qualified inquiry in Analytics.
         if (!trap && !r.body.duplicate) {
-          trackEvent('generate_lead', {
+          var leadParams = {
             lead_type: subject,
             page_path: window.location.pathname
-          });
+          };
+          // Product selection is an allowlisted category, never customer text.
+          var product = fields['Trailer type'];
+          if (['Utility', 'Enclosed cargo', 'Dump', 'Car hauler', 'Equipment', 'Gooseneck', 'Custom build', 'Parts or service'].indexOf(product) !== -1) {
+            leadParams.trailer_type = product;
+          }
+          trackEvent('generate_lead', leadParams);
         }
         note.textContent = r.body.duplicate ?
           'We already received that request. Need to add something? Call (662) 728-7975.' :
