@@ -28,7 +28,10 @@
 
   var markers = [];
   pinned.forEach(function (d) {
-    var m = L.marker([d.lat, d.lng], { icon: icon(!!d.factory) }).addTo(map);
+    var label = d.name + (d.city ? ', ' + d.city : '') + (d.state ? ', ' + d.state : '');
+    var m = L.marker([d.lat, d.lng], { icon: icon(!!d.factory), title: label }).addTo(map);
+    var markerElement = m.getElement();
+    if (markerElement) markerElement.setAttribute('aria-label', label);
     var lines = ['<strong>' + d.name + '</strong>'];
     if (d.city) lines.push(d.city + (d.state ? ', ' + d.state : ''));
     if (d.phone) lines.push('<a data-dealer-id="' + d.id + '" href="tel:+1' + d.phone.replace(/\D/g, '') + '">' + d.phone + '</a>');
@@ -45,7 +48,7 @@
   var listEl = document.getElementById('dmap-list');
   var countEl = document.getElementById('dmap-count');
   if (countEl) {
-    countEl.textContent = pinned.length + ' of ' + dealers.length + ' locations pinned so far. More added as dealers confirm their details.';
+    countEl.textContent = pinned.filter(function (d) { return !d.factory; }).length + ' of ' + dealers.filter(function (d) { return !d.factory; }).length + ' listed dealers mapped, plus the Booneville factory. Pins are approximate town locations; confirm the address and stock before traveling.';
   }
 
   function dist(a, b, c, d) {

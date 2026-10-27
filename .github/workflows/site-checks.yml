@@ -1,0 +1,29 @@
+name: Site checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  static-and-leads:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify deploy assets and committed cache stamps
+        run: |
+          python3 docs/stamp-assets.py
+          git diff --exit-code
+      - name: Check public SEO, links and article discovery
+        run: python3 docs/check-seo.py
+      - name: Check lead delivery, privacy and dealer navigation
+        run: node --test docs/*.test.cjs
+      - name: Check JavaScript syntax
+        run: |
+          for script in js/*.js; do node --check "$script"; done
