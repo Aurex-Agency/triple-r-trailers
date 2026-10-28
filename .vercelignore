@@ -9,3 +9,5 @@
 /README.md
 # /supabase/ holds the edge function source. It runs on Supabase, not here.
 /supabase/
+
+/.github/
